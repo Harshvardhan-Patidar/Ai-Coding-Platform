@@ -4,7 +4,6 @@
   "description": "Next-generation AI-powered coding practice & interview preparation platform",
   "main": "server/index.js",
   "scripts": {
-    "start": "npm run dev",
     "server": "cd server && npm run dev",
     "client": "npm run dev",
     "build": "cd client && npm run build",
