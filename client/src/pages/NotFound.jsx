@@ -1,31 +1,46 @@
+// NotFound.jsx
 import { Link } from 'react-router-dom';
-import { Home, ArrowLeft } from 'lucide-react';
+import { Home, ArrowLeft, Star } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export default function NotFound() {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <div className="mb-8">
-          <h1 className="text-9xl font-bold text-primary">404</h1>
-          <h2 className="text-2xl font-semibold text-foreground mb-4">Page Not Found</h2>
-          <p className="text-muted-foreground mb-8 max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
+      <div className={`text-center transition-all duration-1000 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+        <div className="mb-12">
+          <div className="relative">
+            <h1 className="text-9xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-4">
+              404
+            </h1>
+            <div className="absolute -top-4 -right-4">
+              <Star className="h-8 w-8 text-yellow-400 animate-spin" />
+            </div>
+          </div>
+          <h2 className="text-3xl font-semibold text-white mb-6">Page Not Found</h2>
+          <p className="text-gray-300 mb-8 max-w-md text-lg">
             Sorry, we couldn't find the page you're looking for. It might have been moved, deleted, or doesn't exist.
           </p>
         </div>
         
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-6 justify-center">
           <Link
             to="/"
-            className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+            className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-2xl hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-2xl"
           >
-            <Home className="h-5 w-5 mr-2" />
+            <Home className="h-5 w-5 mr-3" />
             Go Home
           </Link>
           <button
             onClick={() => window.history.back()}
-            className="inline-flex items-center px-6 py-3 border border-border text-foreground rounded-lg hover:bg-accent transition-colors"
+            className="inline-flex items-center px-8 py-4 border border-gray-600 text-gray-300 rounded-2xl hover:bg-gray-800/50 transition-all duration-300 transform hover:scale-105 backdrop-blur-sm"
           >
-            <ArrowLeft className="h-5 w-5 mr-2" />
+            <ArrowLeft className="h-5 w-5 mr-3" />
             Go Back
           </button>
         </div>

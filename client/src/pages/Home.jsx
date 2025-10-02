@@ -8,82 +8,151 @@ import {
   Brain, 
   Zap,
   ArrowRight,
-  CheckCircle
+  CheckCircle,
+  Sparkles,
+  Star,
+  Crown,
+  Target,
+  Clock,
+  TrendingUp,
+  Shield,
+  Rocket
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const features = [
     {
       icon: Code,
       title: 'AI-Powered Coding Practice',
       description: 'Practice with intelligent hints, debugging assistance, and personalized feedback.',
+      color: 'from-purple-500 to-pink-500',
+      delay: 0
     },
     {
       icon: Mic,
       title: 'Voice-Based Interviews',
       description: 'Simulate real interview experiences with AI-powered voice interactions.',
+      color: 'from-blue-500 to-cyan-500',
+      delay: 100
     },
     {
       icon: Trophy,
       title: 'Contest Mode',
       description: 'Compete with friends in real-time coding contests and tournaments.',
+      color: 'from-amber-500 to-orange-500',
+      delay: 200
     },
     {
       icon: Brain,
       title: 'Smart Learning Path',
       description: 'AI creates personalized study plans based on your strengths and weaknesses.',
+      color: 'from-emerald-500 to-green-500',
+      delay: 300
     },
     {
       icon: Users,
       title: 'Community & Leaderboards',
       description: 'Track your progress and compete with developers worldwide.',
+      color: 'from-indigo-500 to-purple-500',
+      delay: 400
     },
     {
       icon: Zap,
       title: 'Real-time Feedback',
       description: 'Get instant feedback on your code with detailed explanations.',
+      color: 'from-red-500 to-pink-500',
+      delay: 500
     },
   ];
 
   const stats = [
-    { label: 'Coding Problems', value: '1000+' },
-    { label: 'Active Users', value: '10K+' },
-    { label: 'Companies', value: '50+' },
-    { label: 'Success Rate', value: '95%' },
+    { label: 'Coding Problems', value: '1000+', icon: Code, color: 'text-purple-400' },
+    { label: 'Active Users', value: '10K+', icon: Users, color: 'text-blue-400' },
+    { label: 'Companies', value: '50+', icon: Building, color: 'text-emerald-400' },
+    { label: 'Success Rate', value: '95%', icon: TrendingUp, color: 'text-amber-400' },
+  ];
+
+  const testimonials = [
+    {
+      name: 'Sarah Chen',
+      role: 'Software Engineer at Google',
+      content: 'This platform helped me land my dream job. The AI feedback is incredibly accurate!',
+      avatar: '👩‍💻'
+    },
+    {
+      name: 'Alex Rodriguez',
+      role: 'Full Stack Developer',
+      content: 'The voice-based interviews prepared me better than any other platform. Highly recommended!',
+      avatar: '👨‍💻'
+    },
+    {
+      name: 'Priya Patel',
+      role: 'Computer Science Student',
+      content: 'The personalized learning path helped me improve my weak areas dramatically.',
+      avatar: '🧑‍🎓'
+    }
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="bg-card border-b border-border">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-500/5 rounded-full blur-3xl animate-pulse delay-500"></div>
+        
+        {/* Floating particles */}
+        <div className="absolute top-20 left-20 w-2 h-2 bg-purple-400 rounded-full animate-float"></div>
+        <div className="absolute top-40 right-40 w-1 h-1 bg-blue-400 rounded-full animate-float delay-700"></div>
+        <div className="absolute bottom-60 left-40 w-1.5 h-1.5 bg-pink-400 rounded-full animate-float delay-1200"></div>
+        <div className="absolute bottom-40 right-60 w-1 h-1 bg-cyan-400 rounded-full animate-float delay-500"></div>
+      </div>
+
+      {/* Enhanced Navigation */}
+      <nav className="relative bg-slate-800/20 backdrop-blur-sm border-b border-slate-700/50 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <h1 className="text-xl font-bold text-foreground">AI Code Platform</h1>
+              <div className="flex items-center space-x-2">
+                <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
+                  <Code className="h-6 w-6 text-white" />
+                </div>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-white to-slate-200 bg-clip-text text-transparent">
+                  CodeMaster AI
+                </h1>
+              </div>
             </div>
             <div className="flex items-center space-x-4">
               {isAuthenticated ? (
                 <Link
                   to="/dashboard"
-                  className="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors"
+                  className="group bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-2 rounded-xl font-semibold hover:from-purple-600 hover:to-pink-600 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25"
                 >
                   Go to Dashboard
+                  <Rocket className="inline h-4 w-4 ml-2 group-hover:animate-pulse" />
                 </Link>
               ) : (
                 <>
                   <Link
                     to="/login"
-                    className="text-muted-foreground hover:text-foreground transition-colors"
+                    className="text-slate-300 hover:text-white transition-colors duration-300 font-medium"
                   >
                     Login
                   </Link>
                   <Link
                     to="/register"
-                    className="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors"
+                    className="group bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-2 rounded-xl font-semibold hover:from-purple-600 hover:to-pink-600 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25"
                   >
                     Get Started
+                    <Sparkles className="inline h-4 w-4 ml-2 group-hover:animate-pulse" />
                   </Link>
                 </>
               )}
@@ -92,104 +161,224 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
+      {/* Enhanced Hero Section */}
+      <section className="relative py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
-            Master Coding with
-            <span className="text-primary block">AI-Powered Learning</span>
+          <div className={`mb-6 ${mounted ? 'animate-fade-in-down' : 'opacity-0'}`}>
+            <span className="inline-flex items-center px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-sm font-medium">
+              <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
+              Next-Gen AI Learning Platform
+            </span>
+          </div>
+          
+          <h1 className={`text-5xl md:text-7xl font-bold mb-6 ${mounted ? 'animate-fade-in-up' : 'opacity-0'}`}>
+            <span className="bg-gradient-to-r from-white to-slate-200 bg-clip-text text-transparent">
+              Master Coding with
+            </span>
+            <br />
+            <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              AI-Powered Learning
+            </span>
           </h1>
-          <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
+          
+          <p className={`text-xl text-slate-300 mb-8 max-w-3xl mx-auto leading-relaxed ${mounted ? 'animate-fade-in-up delay-300' : 'opacity-0'}`}>
             The next-generation platform that combines AI intelligence with hands-on coding practice. 
             Prepare for interviews, improve your skills, and become industry-ready.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          
+          <div className={`flex flex-col sm:flex-row gap-4 justify-center ${mounted ? 'animate-fade-in-up delay-500' : 'opacity-0'}`}>
             <Link
               to={isAuthenticated ? '/dashboard' : '/register'}
-              className="bg-primary text-primary-foreground px-8 py-3 rounded-lg text-lg font-semibold hover:bg-primary/90 transition-colors inline-flex items-center justify-center"
+              className="group bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-2xl text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25 inline-flex items-center justify-center"
             >
               Start Learning Now
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
             </Link>
             <Link
               to="/questions"
-              className="border border-border text-foreground px-8 py-3 rounded-lg text-lg font-semibold hover:bg-accent transition-colors inline-flex items-center justify-center"
+              className="group bg-slate-800/40 backdrop-blur-sm border border-slate-700 text-slate-200 px-8 py-4 rounded-2xl text-lg font-semibold hover:bg-slate-700/40 hover:border-slate-600 hover:scale-105 transition-all duration-300 inline-flex items-center justify-center"
             >
               Browse Problems
+              <Code className="ml-2 h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
             </Link>
+          </div>
+
+          {/* Trust badges */}
+          <div className={`mt-12 flex flex-wrap justify-center items-center gap-8 text-slate-400 ${mounted ? 'animate-fade-in delay-700' : 'opacity-0'}`}>
+            <div className="flex items-center space-x-2">
+              <Shield className="h-5 w-5 text-emerald-400" />
+              <span>Trusted by 10K+ Developers</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Clock className="h-5 w-5 text-blue-400" />
+              <span>24/7 AI Assistance</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Target className="h-5 w-5 text-amber-400" />
+              <span>95% Success Rate</span>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-muted/50">
+      {/* Enhanced Stats Section */}
+      <section className="relative py-16 bg-slate-800/20 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-3xl font-bold text-primary mb-2">{stat.value}</div>
-                <div className="text-muted-foreground">{stat.label}</div>
+              <div 
+                key={index} 
+                className="text-center group hover:scale-105 transition-transform duration-300 animate-fade-in-up"
+                style={{ animationDelay: `${index * 150}ms` }}
+              >
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-800/40 rounded-2xl mb-4 group-hover:bg-slate-700/40 transition-colors duration-300">
+                  <stat.icon className={`h-8 w-8 ${stat.color}`} />
+                </div>
+                <div className="text-3xl font-bold text-white mb-2">{stat.value}</div>
+                <div className="text-slate-400 font-medium">{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
+      {/* Enhanced Features Section */}
+      <section className="relative py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Why Choose Our Platform?
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 animate-fade-in-up">
+              Why Choose <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">CodeMaster</span>?
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-xl text-slate-300 max-w-2xl mx-auto animate-fade-in-up delay-200">
               We combine cutting-edge AI technology with proven learning methodologies 
               to create the most effective coding practice experience.
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <div key={index} className="bg-card p-6 rounded-lg border border-border hover:shadow-lg transition-shadow">
-                <feature.icon className="h-12 w-12 text-primary mb-4" />
-                <h3 className="text-xl font-semibold text-foreground mb-2">
+              <div 
+                key={index} 
+                className="group bg-slate-800/40 backdrop-blur-sm p-8 rounded-2xl border border-slate-700 hover:border-slate-600 hover:shadow-2xl hover:scale-105 transition-all duration-500 animate-fade-in-up"
+                style={{ animationDelay: `${feature.delay}ms` }}
+              >
+                <div className={`inline-flex p-4 rounded-2xl bg-gradient-to-r ${feature.color} mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                  <feature.icon className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-4 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-slate-200 transition-all duration-300">
                   {feature.title}
                 </h3>
-                <p className="text-muted-foreground">
+                <p className="text-slate-400 leading-relaxed">
                   {feature.description}
                 </p>
+                <div className="mt-6 w-12 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full group-hover:w-full transition-all duration-500"></div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-primary text-primary-foreground">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Ready to Level Up Your Coding Skills?
-          </h2>
-          <p className="text-xl mb-8 opacity-90">
-            Join thousands of developers who are already improving their skills with our AI-powered platform.
-          </p>
-          <Link
-            to={isAuthenticated ? '/dashboard' : '/register'}
-            className="bg-background text-foreground px-8 py-3 rounded-lg text-lg font-semibold hover:bg-background/90 transition-colors inline-flex items-center"
-          >
-            Get Started Free
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Link>
+      {/* Testimonials Section */}
+      <section className="relative py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              What Our <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">Users Say</span>
+            </h2>
+            <p className="text-xl text-slate-300 max-w-2xl mx-auto">
+              Join thousands of developers who transformed their careers with CodeMaster
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <div 
+                key={index}
+                className="bg-slate-800/40 backdrop-blur-sm p-8 rounded-2xl border border-slate-700 hover:border-slate-600 hover:shadow-xl hover:scale-105 transition-all duration-500 animate-fade-in-up"
+                style={{ animationDelay: `${index * 200}ms` }}
+              >
+                <div className="text-4xl mb-4">{testimonial.avatar}</div>
+                <p className="text-slate-300 mb-6 italic">"{testimonial.content}"</p>
+                <div>
+                  <div className="font-bold text-white">{testimonial.name}</div>
+                  <div className="text-slate-400 text-sm">{testimonial.role}</div>
+                </div>
+                <div className="flex mt-4">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star key={star} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-card border-t border-border py-12">
+      {/* Enhanced CTA Section */}
+      <section className="relative py-20 bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-orange-600/20 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="relative">
+            <Crown className="h-16 w-16 text-amber-400 mx-auto mb-6 animate-pulse" />
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              Ready to Level Up Your Coding Skills?
+            </h2>
+            <p className="text-xl text-purple-200 mb-8 max-w-2xl mx-auto">
+              Join thousands of developers who are already improving their skills with our AI-powered platform.
+            </p>
+            <Link
+              to={isAuthenticated ? '/dashboard' : '/register'}
+              className="group bg-white text-slate-900 px-8 py-4 rounded-2xl text-lg font-bold hover:bg-slate-100 transition-all duration-300 hover:scale-105 hover:shadow-2xl inline-flex items-center"
+            >
+              Get Started Free
+              <Rocket className="ml-2 h-5 w-5 group-hover:animate-pulse" />
+            </Link>
+            
+            {/* Guarantee badge */}
+            <div className="mt-8 flex items-center justify-center space-x-2 text-slate-300">
+              <CheckCircle className="h-5 w-5 text-emerald-400" />
+              <span>No credit card required • 7-day free trial</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Enhanced Footer */}
+      <footer className="relative bg-slate-800/40 backdrop-blur-sm border-t border-slate-700/50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center text-muted-foreground">
-            <p>&copy; 2024 AI Code Platform. All rights reserved.</p>
+          <div className="text-center text-slate-400">
+            <div className="flex items-center justify-center space-x-2 mb-4">
+              <Code className="h-6 w-6 text-purple-400" />
+              <span className="font-semibold text-white">CodeMaster AI</span>
+            </div>
+            <p>&copy; 2024 CodeMaster AI. All rights reserved. Built with ❤️ for developers</p>
           </div>
         </div>
       </footer>
     </div>
+  );
+}
+
+// Building icon component since it's not imported
+function Building(props) {
+  return (
+    <svg
+      {...props}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
+      <path d="M9 22v-4h6v4" />
+      <path d="M8 6h.01" />
+      <path d="M16 6h.01" />
+      <path d="M12 6h.01" />
+      <path d="M12 10h.01" />
+      <path d="M12 14h.01" />
+      <path d="M16 10h.01" />
+      <path d="M16 14h.01" />
+      <path d="M8 10h.01" />
+      <path d="M8 14h.01" />
+    </svg>
   );
 }
