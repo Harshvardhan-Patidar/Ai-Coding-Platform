@@ -11,6 +11,9 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: false,
+     proxy: {
+      '/api': 'http://localhost:5000'
+    }
   },
   envPrefix: "VITE_",
 });
