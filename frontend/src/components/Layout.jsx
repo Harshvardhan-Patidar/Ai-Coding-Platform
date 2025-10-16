@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -13,21 +13,34 @@ import {
   LogOut, 
   Sun, 
   Moon,
-  Settings
+  Settings,
+  Sparkles,
+  Zap,
+  Brain,
+  Crown
 } from 'lucide-react';
 
 export default function Layout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: Home },
-    { name: 'Questions', href: '/questions', icon: Code },
-    { name: 'Interview', href: '/interview', icon: Mic },
-    { name: 'Contest', href: '/contest', icon: Trophy },
-    { name: 'Leaderboard', href: '/leaderboard', icon: Trophy },
+    { name: 'Dashboard', href: '/dashboard', icon: Home, color: 'from-blue-500 to-cyan-500' },
+    { name: 'Questions', href: '/questions', icon: Code, color: 'from-purple-500 to-pink-500' },
+    { name: 'Interview', href: '/interview', icon: Mic, color: 'from-green-500 to-emerald-500' },
+    { name: 'Contest', href: '/contest', icon: Trophy, color: 'from-yellow-500 to-orange-500' },
+    { name: 'Leaderboard', href: '/leaderboard', icon: Crown, color: 'from-red-500 to-pink-500' },
   ];
 
   const handleLogout = () => {
@@ -35,70 +48,103 @@ export default function Layout({ children }) {
     setSidebarOpen(false);
   };
 
+  const isActive = (href) => location.pathname === href;
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Mobile sidebar */}
-      <div className={`fixed inset-0 z-50 lg:hidden ${sidebarOpen ? 'block' : 'hidden'}`}>
-        <div className="fixed inset-0 bg-black bg-opacity-25" onClick={() => setSidebarOpen(false)} />
-        <div className="fixed inset-y-0 left-0 w-64 bg-card border-r border-border">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
+      {/* Mobile sidebar overlay */}
+      <div 
+        className={`fixed inset-0 z-50 lg:hidden transition-all duration-500 ${
+          sidebarOpen 
+            ? 'bg-black/60 backdrop-blur-sm' 
+            : 'bg-black/0 pointer-events-none'
+        }`}
+        onClick={() => setSidebarOpen(false)}
+      >
+        {/* Mobile sidebar */}
+        <div 
+          className={`fixed inset-y-0 left-0 w-80 bg-gray-800/90 backdrop-blur-lg border-r border-purple-500/30 transform transition-all duration-500 ${
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
+          onClick={(e) => e.stopPropagation()}
+        >
           <div className="flex h-full flex-col">
-            <div className="flex h-16 items-center justify-between px-4">
-              <h1 className="text-xl font-bold text-foreground">AI Code Platform</h1>
+            {/* Header */}
+            <div className="flex h-20 items-center justify-between px-6 bg-gradient-to-r from-purple-900/40 to-pink-900/40 border-b border-purple-500/30">
+              <div className="flex items-center space-x-3">
+                <div className="h-10 w-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                  <Brain className="h-6 w-6 text-white" />
+                </div>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
+                  CodeMaster AI
+                </h1>
+              </div>
               <button
                 onClick={() => setSidebarOpen(false)}
-                className="text-muted-foreground hover:text-foreground"
+                className="p-2 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-xl transition-all duration-300"
               >
-                <X className="h-6 w-6" />
+                <X className="h-5 w-5" />
               </button>
             </div>
-            <nav className="flex-1 space-y-1 px-2 py-4">
+
+            {/* Navigation */}
+            <nav className="flex-1 space-y-2 px-4 py-6">
               {navigation.map((item) => {
-                const isActive = location.pathname === item.href;
+                const active = isActive(item.href);
                 return (
                   <Link
                     key={item.name}
                     to={item.href}
                     onClick={() => setSidebarOpen(false)}
-                    className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${
-                      isActive
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                    className={`group flex items-center px-4 py-4 text-sm font-medium rounded-2xl transition-all duration-300 transform hover:scale-105 ${
+                      active
+                        ? `bg-gradient-to-r ${item.color} text-white shadow-2xl`
+                        : 'text-gray-300 hover:bg-gray-700/50 hover:text-white'
                     }`}
                   >
-                    <item.icon className="mr-3 h-5 w-5" />
+                    <div className={`p-2 rounded-xl mr-4 ${
+                      active ? 'bg-white/20' : 'bg-gray-700/50 group-hover:bg-gray-600/50'
+                    }`}>
+                      <item.icon className="h-5 w-5" />
+                    </div>
                     {item.name}
+                    {active && (
+                      <div className="ml-auto">
+                        <div className="h-2 w-2 bg-white rounded-full animate-pulse" />
+                      </div>
+                    )}
                   </Link>
                 );
               })}
             </nav>
-            <div className="border-t border-border p-4">
-              <div className="flex items-center space-x-3">
-                <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
-                  <span className="text-sm font-medium text-primary-foreground">
-                    {user?.username?.charAt(0).toUpperCase()}
-                  </span>
+
+            {/* User section */}
+            <div className="border-t border-purple-500/30 p-6 bg-gray-900/50">
+              <div className="flex items-center space-x-4 mb-4">
+                <div className="h-12 w-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-lg font-bold text-white shadow-lg">
+                  {user?.username?.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">
+                  <p className="text-sm font-semibold text-white truncate">
                     {user?.username}
                   </p>
-                  <p className="text-xs text-muted-foreground truncate">
+                  <p className="text-xs text-gray-400 truncate">
                     {user?.email}
                   </p>
                 </div>
               </div>
-              <div className="mt-4 space-y-2">
+              <div className="space-y-2">
                 <Link
                   to="/profile"
                   onClick={() => setSidebarOpen(false)}
-                  className="flex items-center px-2 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent rounded-md"
+                  className="flex items-center px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-xl transition-all duration-300"
                 >
                   <User className="mr-3 h-4 w-4" />
                   Profile
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="flex w-full items-center px-2 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent rounded-md"
+                  className="flex w-full items-center px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-red-500/20 rounded-xl transition-all duration-300"
                 >
                   <LogOut className="mr-3 h-4 w-4" />
                   Logout
@@ -110,57 +156,85 @@ export default function Layout({ children }) {
       </div>
 
       {/* Desktop sidebar */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
-        <div className="flex flex-col flex-grow bg-card border-r border-border">
-          <div className="flex h-16 items-center px-4">
-            <h1 className="text-xl font-bold text-foreground">AI Code Platform</h1>
+      <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-80 lg:flex-col">
+        <div className="flex flex-col flex-grow bg-gray-800/90 backdrop-blur-lg border-r border-purple-500/30">
+          {/* Header */}
+          <div className="flex h-20 items-center px-6 bg-gradient-to-r from-purple-900/40 to-pink-900/40 border-b border-purple-500/30">
+            <div className="flex items-center space-x-3">
+              <div className="h-12 w-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                <Brain className="h-7 w-7 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
+                  CodeMaster AI
+                </h1>
+                <p className="text-xs text-purple-300 flex items-center">
+                  <Zap className="h-3 w-3 mr-1" />
+                  AI-Powered Learning
+                </p>
+              </div>
+            </div>
           </div>
-          <nav className="flex-1 space-y-1 px-2 py-4">
+
+          {/* Navigation */}
+          <nav className="flex-1 space-y-2 px-4 py-6">
             {navigation.map((item) => {
-              const isActive = location.pathname === item.href;
+              const active = isActive(item.href);
               return (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${
-                    isActive
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                  className={`group flex items-center px-4 py-4 text-sm font-medium rounded-2xl transition-all duration-300 transform hover:scale-105 ${
+                    active
+                      ? `bg-gradient-to-r ${item.color} text-white shadow-2xl`
+                      : 'text-gray-300 hover:bg-gray-700/50 hover:text-white'
                   }`}
                 >
-                  <item.icon className="mr-3 h-5 w-5" />
+                  <div className={`p-2 rounded-xl mr-4 ${
+                    active ? 'bg-white/20' : 'bg-gray-700/50 group-hover:bg-gray-600/50'
+                  }`}>
+                    <item.icon className="h-5 w-5" />
+                  </div>
                   {item.name}
+                  {active && (
+                    <div className="ml-auto">
+                      <div className="h-2 w-2 bg-white rounded-full animate-pulse" />
+                    </div>
+                  )}
                 </Link>
               );
             })}
           </nav>
-          <div className="border-t border-border p-4">
-            <div className="flex items-center space-x-3">
-              <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
-                <span className="text-sm font-medium text-primary-foreground">
+
+          {/* User section */}
+          <div className="border-t border-purple-500/30 p-6 bg-gray-900/50">
+            <div className="flex items-center space-x-4 mb-4">
+              <div className="relative">
+                <div className="h-12 w-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-lg font-bold text-white shadow-lg">
                   {user?.username?.charAt(0).toUpperCase()}
-                </span>
+                </div>
+                <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-green-400 rounded-full border-2 border-gray-800"></div>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">
+                <p className="text-sm font-semibold text-white truncate">
                   {user?.username}
                 </p>
-                <p className="text-xs text-muted-foreground truncate">
+                <p className="text-xs text-gray-400 truncate">
                   {user?.email}
                 </p>
               </div>
             </div>
-            <div className="mt-4 space-y-2">
+            <div className="space-y-2">
               <Link
                 to="/profile"
-                className="flex items-center px-2 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent rounded-md"
+                className="flex items-center px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-xl transition-all duration-300"
               >
                 <User className="mr-3 h-4 w-4" />
                 Profile
               </Link>
               <button
                 onClick={handleLogout}
-                className="flex w-full items-center px-2 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent rounded-md"
+                className="flex w-full items-center px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-red-500/20 rounded-xl transition-all duration-300"
               >
                 <LogOut className="mr-3 h-4 w-4" />
                 Logout
@@ -171,12 +245,16 @@ export default function Layout({ children }) {
       </div>
 
       {/* Main content */}
-      <div className="lg:pl-64">
-        {/* Top bar */}
-        <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-border bg-background px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+      <div className="lg:pl-80">
+        {/* Enhanced Top bar */}
+        <div className={`sticky top-0 z-40 flex h-20 shrink-0 items-center gap-x-4 bg-gray-800/80 backdrop-blur-lg transition-all duration-500 ${
+          isScrolled 
+            ? 'border-b border-purple-500/30 shadow-2xl' 
+            : 'border-b border-transparent'
+        } px-6 sm:gap-x-6 lg:px-8`}>
           <button
             type="button"
-            className="-m-2.5 p-2.5 text-muted-foreground lg:hidden"
+            className="-m-2.5 p-2.5 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-xl transition-all duration-300 lg:hidden"
             onClick={() => setSidebarOpen(true)}
           >
             <Menu className="h-6 w-6" />
@@ -184,10 +262,12 @@ export default function Layout({ children }) {
 
           <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
             <div className="flex flex-1" />
-            <div className="flex items-center gap-x-4 lg:gap-x-6">
+            <div className="flex items-center gap-x-6">
+              {/* Theme Toggle */}
               <button
                 onClick={toggleTheme}
-                className="text-muted-foreground hover:text-foreground"
+                className="p-3 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-xl transition-all duration-300 transform hover:scale-110"
+                title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
               >
                 {theme === 'light' ? (
                   <Moon className="h-5 w-5" />
@@ -195,17 +275,51 @@ export default function Layout({ children }) {
                   <Sun className="h-5 w-5" />
                 )}
               </button>
+
+              {/* User Info (Desktop) */}
+              <div className="hidden lg:flex items-center space-x-4 bg-gray-700/50 px-4 py-2 rounded-xl border border-gray-600/50">
+                <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-sm font-bold text-white">
+                  {user?.username?.charAt(0).toUpperCase()}
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-medium text-white">
+                    {user?.username}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    {user?.stats?.totalSolved || 0} problems
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Page content */}
-        <main className="py-6">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <main className="py-8">
+          <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-10">
             {children}
           </div>
         </main>
       </div>
+
+      {/* Custom animations */}
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-5px); }
+        }
+        .animate-float {
+          animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes glow {
+          0%, 100% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.4); }
+          50% { box-shadow: 0 0 30px rgba(168, 85, 247, 0.8); }
+        }
+        .animate-glow {
+          animation: glow 2s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   );
 }
