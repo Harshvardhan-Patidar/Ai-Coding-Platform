@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { 
   Code, 
   Mic, 
@@ -22,11 +23,28 @@ import { useEffect, useState } from 'react';
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
+  const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Theme-based styles
+  const backgroundStyles = theme === 'dark' 
+    ? 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900'
+    : 'bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50';
+
+  const navBackground = theme === 'dark'
+    ? 'bg-slate-800/20 backdrop-blur-sm border-b border-slate-700/50'
+    : 'bg-white/20 backdrop-blur-sm border-b border-slate-200/50';
+
+  const cardBackground = theme === 'dark'
+    ? 'bg-slate-800/40 backdrop-blur-sm border border-slate-700'
+    : 'bg-white/80 backdrop-blur-sm border border-slate-200';
+
+  const textColor = theme === 'dark' ? 'text-white' : 'text-slate-900';
+  const textMuted = theme === 'dark' ? 'text-slate-300' : 'text-slate-600';
 
   const features = [
     {
@@ -102,12 +120,12 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden">
+    <div className={`min-h-screen ${backgroundStyles} overflow-hidden transition-colors duration-300`}>
       {/* Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-500/5 rounded-full blur-3xl animate-pulse delay-500"></div>
+        <div className={`absolute -top-40 -right-40 w-80 h-80 ${theme === 'dark' ? 'bg-purple-500/10' : 'bg-purple-500/5'} rounded-full blur-3xl animate-pulse`}></div>
+        <div className={`absolute -bottom-40 -left-40 w-80 h-80 ${theme === 'dark' ? 'bg-blue-500/10' : 'bg-blue-500/5'} rounded-full blur-3xl animate-pulse delay-1000`}></div>
+        <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 ${theme === 'dark' ? 'bg-pink-500/5' : 'bg-pink-500/3'} rounded-full blur-3xl animate-pulse delay-500`}></div>
         
         {/* Floating particles */}
         <div className="absolute top-20 left-20 w-2 h-2 bg-purple-400 rounded-full animate-float"></div>
@@ -117,7 +135,7 @@ export default function Home() {
       </div>
 
       {/* Enhanced Navigation */}
-      <nav className="relative bg-slate-800/20 backdrop-blur-sm border-b border-slate-700/50 z-50">
+      <nav className={`relative ${navBackground} z-50 transition-colors duration-300`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
@@ -125,7 +143,7 @@ export default function Home() {
                 <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
                   <Code className="h-6 w-6 text-white" />
                 </div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-white to-slate-200 bg-clip-text text-transparent">
+                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
                   CodeMaster AI
                 </h1>
               </div>
@@ -143,7 +161,7 @@ export default function Home() {
                 <>
                   <Link
                     to="/login"
-                    className="text-slate-300 hover:text-white transition-colors duration-300 font-medium"
+                    className={`${textMuted} hover:${textColor} transition-colors duration-300 font-medium`}
                   >
                     Login
                   </Link>
@@ -165,14 +183,14 @@ export default function Home() {
       <section className="relative py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center">
           <div className={`mb-6 ${mounted ? 'animate-fade-in-down' : 'opacity-0'}`}>
-            <span className="inline-flex items-center px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-sm font-medium">
+            <span className={`inline-flex items-center px-4 py-2 rounded-full ${theme === 'dark' ? 'bg-purple-500/10 border border-purple-500/20' : 'bg-purple-500/20 border border-purple-500/30'} text-purple-500 text-sm font-medium`}>
               <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
               Next-Gen AI Learning Platform
             </span>
           </div>
           
           <h1 className={`text-5xl md:text-7xl font-bold mb-6 ${mounted ? 'animate-fade-in-up' : 'opacity-0'}`}>
-            <span className="bg-gradient-to-r from-white to-slate-200 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
               Master Coding with
             </span>
             <br />
@@ -181,7 +199,7 @@ export default function Home() {
             </span>
           </h1>
           
-          <p className={`text-xl text-slate-300 mb-8 max-w-3xl mx-auto leading-relaxed ${mounted ? 'animate-fade-in-up delay-300' : 'opacity-0'}`}>
+          <p className={`text-xl ${textMuted} mb-8 max-w-3xl mx-auto leading-relaxed ${mounted ? 'animate-fade-in-up delay-300' : 'opacity-0'}`}>
             The next-generation platform that combines AI intelligence with hands-on coding practice. 
             Prepare for interviews, improve your skills, and become industry-ready.
           </p>
@@ -196,7 +214,7 @@ export default function Home() {
             </Link>
             <Link
               to="/questions"
-              className="group bg-slate-800/40 backdrop-blur-sm border border-slate-700 text-slate-200 px-8 py-4 rounded-2xl text-lg font-semibold hover:bg-slate-700/40 hover:border-slate-600 hover:scale-105 transition-all duration-300 inline-flex items-center justify-center"
+              className={`group ${cardBackground} ${textColor} px-8 py-4 rounded-2xl text-lg font-semibold hover:${theme === 'dark' ? 'bg-slate-700/40' : 'bg-slate-100'} ${theme === 'dark' ? 'hover:border-slate-600' : 'hover:border-slate-300'} hover:scale-105 transition-all duration-300 inline-flex items-center justify-center`}
             >
               Browse Problems
               <Code className="ml-2 h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
@@ -204,7 +222,7 @@ export default function Home() {
           </div>
 
           {/* Trust badges */}
-          <div className={`mt-12 flex flex-wrap justify-center items-center gap-8 text-slate-400 ${mounted ? 'animate-fade-in delay-700' : 'opacity-0'}`}>
+          <div className={`mt-12 flex flex-wrap justify-center items-center gap-8 ${textMuted} ${mounted ? 'animate-fade-in delay-700' : 'opacity-0'}`}>
             <div className="flex items-center space-x-2">
               <Shield className="h-5 w-5 text-emerald-400" />
               <span>Trusted by 10K+ Developers</span>
@@ -222,7 +240,7 @@ export default function Home() {
       </section>
 
       {/* Enhanced Stats Section */}
-      <section className="relative py-16 bg-slate-800/20 backdrop-blur-sm">
+      <section className={`relative py-16 ${theme === 'dark' ? 'bg-slate-800/20' : 'bg-white/20'} backdrop-blur-sm transition-colors duration-300`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
@@ -231,11 +249,11 @@ export default function Home() {
                 className="text-center group hover:scale-105 transition-transform duration-300 animate-fade-in-up"
                 style={{ animationDelay: `${index * 150}ms` }}
               >
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-800/40 rounded-2xl mb-4 group-hover:bg-slate-700/40 transition-colors duration-300">
+                <div className={`inline-flex items-center justify-center w-16 h-16 ${theme === 'dark' ? 'bg-slate-800/40' : 'bg-white/60'} rounded-2xl mb-4 group-hover:${theme === 'dark' ? 'bg-slate-700/40' : 'bg-white/80'} transition-colors duration-300`}>
                   <stat.icon className={`h-8 w-8 ${stat.color}`} />
                 </div>
-                <div className="text-3xl font-bold text-white mb-2">{stat.value}</div>
-                <div className="text-slate-400 font-medium">{stat.label}</div>
+                <div className={`text-3xl font-bold ${textColor} mb-2`}>{stat.value}</div>
+                <div className={`${textMuted} font-medium`}>{stat.label}</div>
               </div>
             ))}
           </div>
@@ -246,10 +264,10 @@ export default function Home() {
       <section className="relative py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 animate-fade-in-up">
+            <h2 className={`text-4xl md:text-5xl font-bold ${textColor} mb-4 animate-fade-in-up`}>
               Why Choose <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">CodeMaster</span>?
             </h2>
-            <p className="text-xl text-slate-300 max-w-2xl mx-auto animate-fade-in-up delay-200">
+            <p className={`text-xl ${textMuted} max-w-2xl mx-auto animate-fade-in-up delay-200`}>
               We combine cutting-edge AI technology with proven learning methodologies 
               to create the most effective coding practice experience.
             </p>
@@ -258,16 +276,16 @@ export default function Home() {
             {features.map((feature, index) => (
               <div 
                 key={index} 
-                className="group bg-slate-800/40 backdrop-blur-sm p-8 rounded-2xl border border-slate-700 hover:border-slate-600 hover:shadow-2xl hover:scale-105 transition-all duration-500 animate-fade-in-up"
+                className={`group ${cardBackground} p-8 rounded-2xl ${theme === 'dark' ? 'hover:border-slate-600' : 'hover:border-slate-300'} hover:shadow-2xl hover:scale-105 transition-all duration-500 animate-fade-in-up`}
                 style={{ animationDelay: `${feature.delay}ms` }}
               >
                 <div className={`inline-flex p-4 rounded-2xl bg-gradient-to-r ${feature.color} mb-6 group-hover:scale-110 transition-transform duration-300`}>
                   <feature.icon className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-4 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-slate-200 transition-all duration-300">
+                <h3 className={`text-xl font-bold ${textColor} mb-4 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-slate-200 transition-all duration-300`}>
                   {feature.title}
                 </h3>
-                <p className="text-slate-400 leading-relaxed">
+                <p className={`${textMuted} leading-relaxed`}>
                   {feature.description}
                 </p>
                 <div className="mt-6 w-12 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full group-hover:w-full transition-all duration-500"></div>
@@ -281,10 +299,10 @@ export default function Home() {
       <section className="relative py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            <h2 className={`text-4xl md:text-5xl font-bold ${textColor} mb-4`}>
               What Our <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">Users Say</span>
             </h2>
-            <p className="text-xl text-slate-300 max-w-2xl mx-auto">
+            <p className={`text-xl ${textMuted} max-w-2xl mx-auto`}>
               Join thousands of developers who transformed their careers with CodeMaster
             </p>
           </div>
@@ -292,14 +310,14 @@ export default function Home() {
             {testimonials.map((testimonial, index) => (
               <div 
                 key={index}
-                className="bg-slate-800/40 backdrop-blur-sm p-8 rounded-2xl border border-slate-700 hover:border-slate-600 hover:shadow-xl hover:scale-105 transition-all duration-500 animate-fade-in-up"
+                className={`${cardBackground} p-8 rounded-2xl ${theme === 'dark' ? 'hover:border-slate-600' : 'hover:border-slate-300'} hover:shadow-xl hover:scale-105 transition-all duration-500 animate-fade-in-up`}
                 style={{ animationDelay: `${index * 200}ms` }}
               >
                 <div className="text-4xl mb-4">{testimonial.avatar}</div>
-                <p className="text-slate-300 mb-6 italic">"{testimonial.content}"</p>
+                <p className={`${textMuted} mb-6 italic`}>"{testimonial.content}"</p>
                 <div>
-                  <div className="font-bold text-white">{testimonial.name}</div>
-                  <div className="text-slate-400 text-sm">{testimonial.role}</div>
+                  <div className={`font-bold ${textColor}`}>{testimonial.name}</div>
+                  <div className={`${textMuted} text-sm`}>{testimonial.role}</div>
                 </div>
                 <div className="flex mt-4">
                   {[1, 2, 3, 4, 5].map((star) => (
@@ -313,14 +331,14 @@ export default function Home() {
       </section>
 
       {/* Enhanced CTA Section */}
-      <section className="relative py-20 bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-orange-600/20 backdrop-blur-sm">
+      <section className={`relative py-20 bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-orange-600/20 backdrop-blur-sm transition-colors duration-300`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="relative">
             <Crown className="h-16 w-16 text-amber-400 mx-auto mb-6 animate-pulse" />
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            <h2 className={`text-4xl md:text-5xl font-bold ${textColor} mb-4`}>
               Ready to Level Up Your Coding Skills?
             </h2>
-            <p className="text-xl text-purple-200 mb-8 max-w-2xl mx-auto">
+            <p className="text-xl text-purple-600 mb-8 max-w-2xl mx-auto">
               Join thousands of developers who are already improving their skills with our AI-powered platform.
             </p>
             <Link
@@ -332,7 +350,7 @@ export default function Home() {
             </Link>
             
             {/* Guarantee badge */}
-            <div className="mt-8 flex items-center justify-center space-x-2 text-slate-300">
+            <div className="mt-8 flex items-center justify-center space-x-2 text-slate-600">
               <CheckCircle className="h-5 w-5 text-emerald-400" />
               <span>No credit card required • 7-day free trial</span>
             </div>
@@ -341,12 +359,12 @@ export default function Home() {
       </section>
 
       {/* Enhanced Footer */}
-      <footer className="relative bg-slate-800/40 backdrop-blur-sm border-t border-slate-700/50 py-12">
+      <footer className={`relative ${theme === 'dark' ? 'bg-slate-800/40' : 'bg-white/40'} backdrop-blur-sm border-t ${theme === 'dark' ? 'border-slate-700/50' : 'border-slate-200/50'} py-12 transition-colors duration-300`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center text-slate-400">
+          <div className={`text-center ${textMuted}`}>
             <div className="flex items-center justify-center space-x-2 mb-4">
               <Code className="h-6 w-6 text-purple-400" />
-              <span className="font-semibold text-white">CodeMaster AI</span>
+              <span className="font-semibold text-purple-500">CodeMaster AI</span>
             </div>
             <p>&copy; 2024 CodeMaster AI. All rights reserved. Built with ❤️ for developers</p>
           </div>

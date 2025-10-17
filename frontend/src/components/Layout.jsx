@@ -50,8 +50,25 @@ export default function Layout({ children }) {
 
   const isActive = (href) => location.pathname === href;
 
+  // Theme-based background styles
+  const backgroundStyles = theme === 'dark' 
+    ? 'bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900'
+    : 'bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50';
+
+  const sidebarBackground = theme === 'dark'
+    ? 'bg-gray-800/90 backdrop-blur-lg border-r border-purple-500/30'
+    : 'bg-white/90 backdrop-blur-lg border-r border-purple-200';
+
+  const topbarBackground = theme === 'dark'
+    ? 'bg-gray-800/80 backdrop-blur-lg border-b border-purple-500/30'
+    : 'bg-white/80 backdrop-blur-lg border-b border-purple-200';
+
+  const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
+  const textMuted = theme === 'dark' ? 'text-gray-300' : 'text-gray-600';
+  const hoverBackground = theme === 'dark' ? 'hover:bg-gray-700/50' : 'hover:bg-gray-100';
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
+    <div className={`min-h-screen transition-colors duration-300 ${backgroundStyles}`}>
       {/* Mobile sidebar overlay */}
       <div 
         className={`fixed inset-0 z-50 lg:hidden transition-all duration-500 ${
@@ -63,25 +80,29 @@ export default function Layout({ children }) {
       >
         {/* Mobile sidebar */}
         <div 
-          className={`fixed inset-y-0 left-0 w-80 bg-gray-800/90 backdrop-blur-lg border-r border-purple-500/30 transform transition-all duration-500 ${
+          className={`fixed inset-y-0 left-0 w-80 ${sidebarBackground} transform transition-all duration-500 ${
             sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex h-full flex-col">
             {/* Header */}
-            <div className="flex h-20 items-center justify-between px-6 bg-gradient-to-r from-purple-900/40 to-pink-900/40 border-b border-purple-500/30">
+            <div className={`flex h-20 items-center justify-between px-6 ${
+              theme === 'dark' 
+                ? 'bg-gradient-to-r from-purple-900/40 to-pink-900/40 border-b border-purple-500/30' 
+                : 'bg-gradient-to-r from-purple-100 to-pink-100 border-b border-purple-200'
+            }`}>
               <div className="flex items-center space-x-3">
                 <div className="h-10 w-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
                   <Brain className="h-6 w-6 text-white" />
                 </div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
+                <h1 className={`text-xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent`}>
                   CodeMaster AI
                 </h1>
               </div>
               <button
                 onClick={() => setSidebarOpen(false)}
-                className="p-2 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-xl transition-all duration-300"
+                className={`p-2 ${textMuted} ${hoverBackground} rounded-xl transition-all duration-300`}
               >
                 <X className="h-5 w-5" />
               </button>
@@ -99,11 +120,11 @@ export default function Layout({ children }) {
                     className={`group flex items-center px-4 py-4 text-sm font-medium rounded-2xl transition-all duration-300 transform hover:scale-105 ${
                       active
                         ? `bg-gradient-to-r ${item.color} text-white shadow-2xl`
-                        : 'text-gray-300 hover:bg-gray-700/50 hover:text-white'
+                        : `${textColor} ${hoverBackground}`
                     }`}
                   >
                     <div className={`p-2 rounded-xl mr-4 ${
-                      active ? 'bg-white/20' : 'bg-gray-700/50 group-hover:bg-gray-600/50'
+                      active ? 'bg-white/20' : theme === 'dark' ? 'bg-gray-700/50 group-hover:bg-gray-600/50' : 'bg-gray-200/50 group-hover:bg-gray-300/50'
                     }`}>
                       <item.icon className="h-5 w-5" />
                     </div>
@@ -119,16 +140,20 @@ export default function Layout({ children }) {
             </nav>
 
             {/* User section */}
-            <div className="border-t border-purple-500/30 p-6 bg-gray-900/50">
+            <div className={`border-t ${
+              theme === 'dark' ? 'border-purple-500/30' : 'border-purple-200'
+            } p-6 ${
+              theme === 'dark' ? 'bg-gray-900/50' : 'bg-gray-50/50'
+            }`}>
               <div className="flex items-center space-x-4 mb-4">
                 <div className="h-12 w-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-lg font-bold text-white shadow-lg">
                   {user?.username?.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-white truncate">
+                  <p className={`text-sm font-semibold ${textColor} truncate`}>
                     {user?.username}
                   </p>
-                  <p className="text-xs text-gray-400 truncate">
+                  <p className={`text-xs ${textMuted} truncate`}>
                     {user?.email}
                   </p>
                 </div>
@@ -137,14 +162,14 @@ export default function Layout({ children }) {
                 <Link
                   to="/profile"
                   onClick={() => setSidebarOpen(false)}
-                  className="flex items-center px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-xl transition-all duration-300"
+                  className={`flex items-center px-4 py-3 text-sm ${textMuted} hover:${textColor} ${hoverBackground} rounded-xl transition-all duration-300`}
                 >
                   <User className="mr-3 h-4 w-4" />
                   Profile
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="flex w-full items-center px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-red-500/20 rounded-xl transition-all duration-300"
+                  className={`flex w-full items-center px-4 py-3 text-sm ${textMuted} hover:text-white hover:bg-red-500/20 rounded-xl transition-all duration-300`}
                 >
                   <LogOut className="mr-3 h-4 w-4" />
                   Logout
@@ -157,18 +182,24 @@ export default function Layout({ children }) {
 
       {/* Desktop sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-80 lg:flex-col">
-        <div className="flex flex-col flex-grow bg-gray-800/90 backdrop-blur-lg border-r border-purple-500/30">
+        <div className={`flex flex-col flex-grow ${sidebarBackground}`}>
           {/* Header */}
-          <div className="flex h-20 items-center px-6 bg-gradient-to-r from-purple-900/40 to-pink-900/40 border-b border-purple-500/30">
+          <div className={`flex h-20 items-center px-6 ${
+            theme === 'dark'
+              ? 'bg-gradient-to-r from-purple-900/40 to-pink-900/40 border-b border-purple-500/30'
+              : 'bg-gradient-to-r from-purple-100 to-pink-100 border-b border-purple-200'
+          }`}>
             <div className="flex items-center space-x-3">
               <div className="h-12 w-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
                 <Brain className="h-7 w-7 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
+                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
                   CodeMaster AI
                 </h1>
-                <p className="text-xs text-purple-300 flex items-center">
+                <p className={`text-xs ${
+                  theme === 'dark' ? 'text-purple-300' : 'text-purple-600'
+                } flex items-center`}>
                   <Zap className="h-3 w-3 mr-1" />
                   AI-Powered Learning
                 </p>
@@ -187,11 +218,11 @@ export default function Layout({ children }) {
                   className={`group flex items-center px-4 py-4 text-sm font-medium rounded-2xl transition-all duration-300 transform hover:scale-105 ${
                     active
                       ? `bg-gradient-to-r ${item.color} text-white shadow-2xl`
-                      : 'text-gray-300 hover:bg-gray-700/50 hover:text-white'
+                      : `${textColor} ${hoverBackground}`
                   }`}
                 >
                   <div className={`p-2 rounded-xl mr-4 ${
-                    active ? 'bg-white/20' : 'bg-gray-700/50 group-hover:bg-gray-600/50'
+                    active ? 'bg-white/20' : theme === 'dark' ? 'bg-gray-700/50 group-hover:bg-gray-600/50' : 'bg-gray-200/50 group-hover:bg-gray-300/50'
                   }`}>
                     <item.icon className="h-5 w-5" />
                   </div>
@@ -207,7 +238,11 @@ export default function Layout({ children }) {
           </nav>
 
           {/* User section */}
-          <div className="border-t border-purple-500/30 p-6 bg-gray-900/50">
+          <div className={`border-t ${
+            theme === 'dark' ? 'border-purple-500/30' : 'border-purple-200'
+          } p-6 ${
+            theme === 'dark' ? 'bg-gray-900/50' : 'bg-gray-50/50'
+          }`}>
             <div className="flex items-center space-x-4 mb-4">
               <div className="relative">
                 <div className="h-12 w-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-lg font-bold text-white shadow-lg">
@@ -216,10 +251,10 @@ export default function Layout({ children }) {
                 <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-green-400 rounded-full border-2 border-gray-800"></div>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-white truncate">
+                <p className={`text-sm font-semibold ${textColor} truncate`}>
                   {user?.username}
                 </p>
-                <p className="text-xs text-gray-400 truncate">
+                <p className={`text-xs ${textMuted} truncate`}>
                   {user?.email}
                 </p>
               </div>
@@ -227,14 +262,14 @@ export default function Layout({ children }) {
             <div className="space-y-2">
               <Link
                 to="/profile"
-                className="flex items-center px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-xl transition-all duration-300"
+                className={`flex items-center px-4 py-3 text-sm ${textMuted} hover:${textColor} ${hoverBackground} rounded-xl transition-all duration-300`}
               >
                 <User className="mr-3 h-4 w-4" />
                 Profile
               </Link>
               <button
                 onClick={handleLogout}
-                className="flex w-full items-center px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-red-500/20 rounded-xl transition-all duration-300"
+                className={`flex w-full items-center px-4 py-3 text-sm ${textMuted} hover:text-white hover:bg-red-500/20 rounded-xl transition-all duration-300`}
               >
                 <LogOut className="mr-3 h-4 w-4" />
                 Logout
@@ -247,14 +282,14 @@ export default function Layout({ children }) {
       {/* Main content */}
       <div className="lg:pl-80">
         {/* Enhanced Top bar */}
-        <div className={`sticky top-0 z-40 flex h-20 shrink-0 items-center gap-x-4 bg-gray-800/80 backdrop-blur-lg transition-all duration-500 ${
+        <div className={`sticky top-0 z-40 flex h-20 shrink-0 items-center gap-x-4 ${topbarBackground} transition-all duration-500 ${
           isScrolled 
-            ? 'border-b border-purple-500/30 shadow-2xl' 
+            ? 'shadow-2xl' 
             : 'border-b border-transparent'
         } px-6 sm:gap-x-6 lg:px-8`}>
           <button
             type="button"
-            className="-m-2.5 p-2.5 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-xl transition-all duration-300 lg:hidden"
+            className={`-m-2.5 p-2.5 ${textMuted} ${hoverBackground} rounded-xl transition-all duration-300 lg:hidden`}
             onClick={() => setSidebarOpen(true)}
           >
             <Menu className="h-6 w-6" />
@@ -266,7 +301,7 @@ export default function Layout({ children }) {
               {/* Theme Toggle */}
               <button
                 onClick={toggleTheme}
-                className="p-3 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-xl transition-all duration-300 transform hover:scale-110"
+                className={`p-3 ${textMuted} ${hoverBackground} rounded-xl transition-all duration-300 transform hover:scale-110`}
                 title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
               >
                 {theme === 'light' ? (
@@ -277,15 +312,19 @@ export default function Layout({ children }) {
               </button>
 
               {/* User Info (Desktop) */}
-              <div className="hidden lg:flex items-center space-x-4 bg-gray-700/50 px-4 py-2 rounded-xl border border-gray-600/50">
+              <div className={`hidden lg:flex items-center space-x-4 ${
+                theme === 'dark' ? 'bg-gray-700/50' : 'bg-gray-100/50'
+              } px-4 py-2 rounded-xl border ${
+                theme === 'dark' ? 'border-gray-600/50' : 'border-gray-300/50'
+              }`}>
                 <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-sm font-bold text-white">
                   {user?.username?.charAt(0).toUpperCase()}
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-medium text-white">
+                  <p className={`text-sm font-medium ${textColor}`}>
                     {user?.username}
                   </p>
-                  <p className="text-xs text-gray-400">
+                  <p className={`text-xs ${textMuted}`}>
                     {user?.stats?.totalSolved || 0} problems
                   </p>
                 </div>
