@@ -1,7 +1,7 @@
-// QuestionDetail.jsx
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useTheme } from '../contexts/ThemeContext';
 import { questionService } from '../services/questionService';
 import { chatService } from '../services/chatService';
 import { useChat } from '../contexts/ChatContext';
@@ -25,6 +25,7 @@ export default function QuestionDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { openChat } = useChat();
+  const { theme } = useTheme();
   const [code, setCode] = useState('');
   const [language, setLanguage] = useState('javascript');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,6 +37,18 @@ export default function QuestionDetail() {
   useEffect(() => {
     setIsVisible(true);
   }, []);
+
+  // Theme-based styles
+  const backgroundStyles = theme === 'dark' 
+    ? 'bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900'
+    : 'bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50';
+
+  const cardBackground = theme === 'dark'
+    ? 'bg-gray-800/40 backdrop-blur-sm border border-gray-700'
+    : 'bg-white/80 backdrop-blur-sm border border-gray-200';
+
+  const textColor = theme === 'dark' ? 'text-white' : 'text-gray-900';
+  const textMuted = theme === 'dark' ? 'text-gray-300' : 'text-gray-600';
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['question', id],
@@ -135,7 +148,7 @@ export default function QuestionDetail() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 flex items-center justify-center">
+      <div className={`min-h-screen ${backgroundStyles} flex items-center justify-center`}>
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-purple-500"></div>
       </div>
     );
@@ -143,7 +156,7 @@ export default function QuestionDetail() {
 
   if (error || !question) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 flex items-center justify-center">
+      <div className={`min-h-screen ${backgroundStyles} flex items-center justify-center`}>
         <div className="text-center">
           <AlertCircle className="h-16 w-16 text-red-400 mx-auto mb-4" />
           <h3 className="text-2xl font-bold text-white mb-2">Question Not Found</h3>
@@ -160,13 +173,13 @@ export default function QuestionDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 p-6">
+    <div className={`min-h-screen transition-colors duration-300 ${backgroundStyles} p-6`}>
       <div className={`max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         {/* Problem Description */}
         <div className="space-y-6">
-          <div className="bg-gray-800/40 p-8 rounded-2xl border border-gray-700 backdrop-blur-sm shadow-2xl">
+          <div className={`${cardBackground} p-8 rounded-2xl backdrop-blur-sm shadow-2xl`}>
             <div className="flex items-center justify-between mb-6">
-              <h1 className="text-3xl font-bold text-white">{question.title}</h1>
+              <h1 className={`text-3xl font-bold ${textColor}`}>{question.title}</h1>
               <div className="flex items-center space-x-3">
                 {question.isSolved && (
                   <CheckCircle className="h-7 w-7 text-green-400 animate-pulse" />
@@ -179,34 +192,34 @@ export default function QuestionDetail() {
               </div>
             </div>
 
-            <div className="prose prose-invert max-w-none text-gray-300 text-lg">
+            <div className={`prose max-w-none ${textMuted} text-lg`}>
               <div dangerouslySetInnerHTML={{ __html: question.description }} />
             </div>
 
             {question.examples && question.examples.length > 0 && (
               <div className="mt-8">
-                <h3 className="text-xl font-bold text-white mb-4 flex items-center">
+                <h3 className={`text-xl font-bold ${textColor} mb-4 flex items-center`}>
                   <Sparkles className="h-5 w-5 mr-2 text-purple-400" />
                   Examples
                 </h3>
                 {question.examples.map((example, index) => (
-                  <div key={index} className="bg-gray-700/50 p-6 rounded-xl mb-4 border border-gray-600">
+                  <div key={index} className={`${theme === 'dark' ? 'bg-gray-700/50' : 'bg-gray-100/50'} p-6 rounded-xl mb-4 border ${theme === 'dark' ? 'border-gray-600' : 'border-gray-300'}`}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm font-medium text-gray-300 mb-2">Input:</p>
-                        <pre className="text-sm text-gray-200 bg-gray-900/80 p-4 rounded-lg border border-gray-600">
+                        <p className={`text-sm font-medium ${textMuted} mb-2`}>Input:</p>
+                        <pre className={`text-sm ${textColor} ${theme === 'dark' ? 'bg-gray-900/80' : 'bg-gray-100'} p-4 rounded-lg border ${theme === 'dark' ? 'border-gray-600' : 'border-gray-300'}`}>
                           {example.input}
                         </pre>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-300 mb-2">Output:</p>
-                        <pre className="text-sm text-gray-200 bg-gray-900/80 p-4 rounded-lg border border-gray-600">
+                        <p className={`text-sm font-medium ${textMuted} mb-2`}>Output:</p>
+                        <pre className={`text-sm ${textColor} ${theme === 'dark' ? 'bg-gray-900/80' : 'bg-gray-100'} p-4 rounded-lg border ${theme === 'dark' ? 'border-gray-600' : 'border-gray-300'}`}>
                           {example.output}
                         </pre>
                       </div>
                     </div>
                     {example.explanation && (
-                      <p className="text-sm text-gray-400 mt-3">
+                      <p className={`text-sm ${textMuted} mt-3`}>
                         <strong className="text-purple-400">Explanation:</strong> {example.explanation}
                       </p>
                     )}
@@ -217,7 +230,7 @@ export default function QuestionDetail() {
 
             {question.constraints && question.constraints.length > 0 && (
               <div className="mt-8">
-                <h3 className="text-xl font-bold text-white mb-4 flex items-center">
+                <h3 className={`text-xl font-bold ${textColor} mb-4 flex items-center`}>
                   <Zap className="h-5 w-5 mr-2 text-yellow-400" />
                   Constraints
                 </h3>
@@ -233,7 +246,7 @@ export default function QuestionDetail() {
               {question.topics?.map((topic) => (
                 <span
                   key={topic}
-                  className="px-4 py-2 text-sm bg-gradient-to-r from-purple-900/50 to-pink-900/50 text-purple-300 rounded-full border border-purple-500/30"
+                  className={`px-4 py-2 text-sm bg-gradient-to-r from-purple-900/50 to-pink-900/50 text-purple-300 rounded-full border ${theme === 'dark' ? 'border-purple-500/30' : 'border-purple-500/20'}`}
                 >
                   {topic}
                 </span>
@@ -243,14 +256,14 @@ export default function QuestionDetail() {
 
           {/* Hints */}
           {showHints && hints.length > 0 && (
-            <div className="bg-gradient-to-r from-yellow-900/30 to-amber-900/30 p-6 rounded-2xl border border-yellow-500/30 backdrop-blur-sm">
-              <h3 className="text-xl font-bold text-white mb-4 flex items-center">
+            <div className={`bg-gradient-to-r from-yellow-900/30 to-amber-900/30 p-6 rounded-2xl border border-yellow-500/30 backdrop-blur-sm`}>
+              <h3 className={`text-xl font-bold ${textColor} mb-4 flex items-center`}>
                 <Lightbulb className="h-6 w-6 mr-3 text-yellow-400 animate-pulse" />
                 Hints
               </h3>
               <div className="space-y-3">
                 {hints.map((hint, index) => (
-                  <p key={index} className="text-gray-200 text-lg">
+                  <p key={index} className={`${textColor} text-lg`}>
                     {hint}
                   </p>
                 ))}
@@ -261,13 +274,13 @@ export default function QuestionDetail() {
 
         {/* Code Editor */}
         <div className="space-y-6">
-          <div className="bg-gray-800/40 rounded-2xl border border-gray-700 overflow-hidden backdrop-blur-sm shadow-2xl">
-            <div className="flex items-center justify-between p-6 border-b border-gray-700 bg-gradient-to-r from-purple-900/20 to-pink-900/20">
+          <div className={`${cardBackground} rounded-2xl overflow-hidden backdrop-blur-sm shadow-2xl`}>
+            <div className={`flex items-center justify-between p-6 border-b ${theme === 'dark' ? 'border-gray-700' : 'border-gray-300'} bg-gradient-to-r from-purple-900/20 to-pink-900/20`}>
               <div className="flex items-center space-x-4">
                 <select
                   value={language}
                   onChange={(e) => setLanguage(e.target.value)}
-                  className="px-4 py-2 text-sm border border-gray-600 rounded-lg bg-gray-900/80 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300"
+                  className={`px-4 py-2 text-sm border ${theme === 'dark' ? 'border-gray-600 bg-gray-900/80' : 'border-gray-300 bg-white/60'} ${textColor} rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300`}
                 >
                   <option value="javascript">JavaScript</option>
                   <option value="python">Python</option>
@@ -278,21 +291,21 @@ export default function QuestionDetail() {
               <div className="flex items-center space-x-3">
                 <button
                   onClick={handleGetHints}
-                  className="p-3 text-gray-400 hover:text-yellow-400 hover:bg-yellow-900/20 rounded-xl transition-all duration-300"
+                  className={`p-3 ${textMuted} hover:text-yellow-400 ${theme === 'dark' ? 'hover:bg-yellow-900/20' : 'hover:bg-yellow-500/10'} rounded-xl transition-all duration-300`}
                   title="Get Hints"
                 >
                   <Lightbulb className="h-5 w-5" />
                 </button>
                 <button
                   onClick={handleDebug}
-                  className="p-3 text-gray-400 hover:text-red-400 hover:bg-red-900/20 rounded-xl transition-all duration-300"
+                  className={`p-3 ${textMuted} hover:text-red-400 ${theme === 'dark' ? 'hover:bg-red-900/20' : 'hover:bg-red-500/10'} rounded-xl transition-all duration-300`}
                   title="Debug Help"
                 >
                   <Bug className="h-5 w-5" />
                 </button>
                 <button
                   onClick={handleExplainAlgorithm}
-                  className="p-3 text-gray-400 hover:text-blue-400 hover:bg-blue-900/20 rounded-xl transition-all duration-300"
+                  className={`p-3 ${textMuted} hover:text-blue-400 ${theme === 'dark' ? 'hover:bg-blue-900/20' : 'hover:bg-blue-500/10'} rounded-xl transition-all duration-300`}
                   title="Explain Algorithm"
                 >
                   <Brain className="h-5 w-5" />
@@ -306,7 +319,7 @@ export default function QuestionDetail() {
                 language={language}
                 value={code}
                 onChange={setCode}
-                theme="vs-dark"
+                theme={theme === 'dark' ? 'vs-dark' : 'vs'}
                 options={{
                   minimap: { enabled: false },
                   fontSize: 14,
@@ -325,7 +338,7 @@ export default function QuestionDetail() {
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => setCode('')}
-                className="flex items-center px-6 py-3 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-xl transition-all duration-300 border border-gray-600"
+                className={`flex items-center px-6 py-3 ${textMuted} hover:${textColor} ${theme === 'dark' ? 'hover:bg-gray-700/50' : 'hover:bg-gray-100'} rounded-xl transition-all duration-300 border ${theme === 'dark' ? 'border-gray-600' : 'border-gray-300'}`}
               >
                 <RotateCcw className="h-5 w-5 mr-2" />
                 Reset
@@ -359,17 +372,17 @@ export default function QuestionDetail() {
                 ) : (
                   <XCircle className="h-7 w-7 text-red-400 animate-pulse" />
                 )}
-                <h3 className="text-xl font-bold text-white">
+                <h3 className={`text-xl font-bold ${textColor}`}>
                   {result.isCorrect ? 'Accepted!' : 'Wrong Answer'}
                 </h3>
               </div>
               
-              <p className="text-gray-300 text-lg mb-3">
+              <p className={`${textMuted} text-lg mb-3`}>
                 {result.message}
               </p>
               
               {result.attempts && (
-                <p className="text-gray-400">
+                <p className={textMuted}>
                   Attempts: <span className="text-purple-400 font-semibold">{result.attempts}</span>
                 </p>
               )}
@@ -378,24 +391,24 @@ export default function QuestionDetail() {
 
           {/* Stats */}
           <div className="grid grid-cols-3 gap-6">
-            <div className="bg-gray-800/40 p-6 rounded-2xl border border-gray-700 text-center backdrop-blur-sm hover:scale-105 transition-transform duration-300">
+            <div className={`${cardBackground} p-6 rounded-2xl text-center backdrop-blur-sm hover:scale-105 transition-transform duration-300`}>
               <Clock className="h-7 w-7 text-purple-400 mx-auto mb-3" />
-              <div className="text-sm text-gray-400">Avg Time</div>
-              <div className="text-xl font-bold text-white">
+              <div className={`text-sm ${textMuted}`}>Avg Time</div>
+              <div className={`text-xl font-bold ${textColor}`}>
                 {question.averageTime || 0} min
               </div>
             </div>
-            <div className="bg-gray-800/40 p-6 rounded-2xl border border-gray-700 text-center backdrop-blur-sm hover:scale-105 transition-transform duration-300">
+            <div className={`${cardBackground} p-6 rounded-2xl text-center backdrop-blur-sm hover:scale-105 transition-transform duration-300`}>
               <Code className="h-7 w-7 text-blue-400 mx-auto mb-3" />
-              <div className="text-sm text-gray-400">Acceptance</div>
-              <div className="text-xl font-bold text-white">
+              <div className={`text-sm ${textMuted}`}>Acceptance</div>
+              <div className={`text-xl font-bold ${textColor}`}>
                 {question.acceptanceRate || 0}%
               </div>
             </div>
-            <div className="bg-gray-800/40 p-6 rounded-2xl border border-gray-700 text-center backdrop-blur-sm hover:scale-105 transition-transform duration-300">
+            <div className={`${cardBackground} p-6 rounded-2xl text-center backdrop-blur-sm hover:scale-105 transition-transform duration-300`}>
               <CheckCircle className="h-7 w-7 text-green-400 mx-auto mb-3" />
-              <div className="text-sm text-gray-400">Solved</div>
-              <div className="text-xl font-bold text-white">
+              <div className={`text-sm ${textMuted}`}>Solved</div>
+              <div className={`text-xl font-bold ${textColor}`}>
                 {question.isSolved ? 'Yes' : 'No'}
               </div>
             </div>

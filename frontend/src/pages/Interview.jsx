@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTheme } from '../contexts/ThemeContext';
 import { 
   Mic, 
   MicOff, 
@@ -30,6 +31,7 @@ export default function Interview() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [mounted, setMounted] = useState(false);
   const [audioLevel, setAudioLevel] = useState(0);
+  const { theme } = useTheme();
 
   useEffect(() => {
     setMounted(true);
@@ -46,6 +48,19 @@ export default function Interview() {
     }
     return () => clearInterval(interval);
   }, [isRecording]);
+
+  // Theme-based styles
+  const backgroundStyles = theme === 'dark' 
+    ? 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900'
+    : 'bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50';
+
+  const cardBackground = theme === 'dark'
+    ? 'bg-slate-800/40 backdrop-blur-sm border border-slate-700'
+    : 'bg-white/80 backdrop-blur-sm border border-slate-200';
+
+  const textColor = theme === 'dark' ? 'text-white' : 'text-slate-900';
+  const textMuted = theme === 'dark' ? 'text-slate-300' : 'text-slate-600';
+  const hoverBackground = theme === 'dark' ? 'hover:bg-slate-700/50' : 'hover:bg-slate-100';
 
   const startInterview = async () => {
     // Simulate starting an interview session
@@ -120,7 +135,7 @@ export default function Interview() {
 
   if (!interviewSession) {
     return (
-      <div className={`min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-12 px-4 sm:px-6 lg:px-8 ${mounted ? 'animate-fade-in' : 'opacity-0'}`}>
+      <div className={`min-h-screen transition-colors duration-300 ${backgroundStyles} py-12 px-4 sm:px-6 lg:px-8 ${mounted ? 'animate-fade-in' : 'opacity-0'}`}>
         <div className="max-w-6xl mx-auto space-y-12">
           {/* Enhanced Header */}
           <div className="text-center">
@@ -132,10 +147,10 @@ export default function Interview() {
                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full animate-ping"></div>
               </div>
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-white to-slate-200 bg-clip-text text-transparent mb-4">
+            <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent mb-4">
               AI-Powered Mock Interview
             </h1>
-            <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
+            <p className={`text-xl ${textMuted} max-w-2xl mx-auto leading-relaxed`}>
               Practice your coding and behavioral interview skills with our advanced AI interviewer that provides real-time feedback
             </p>
           </div>
@@ -167,16 +182,16 @@ export default function Interview() {
             ].map((feature, index) => (
               <div 
                 key={index}
-                className="group bg-slate-800/40 backdrop-blur-sm p-8 rounded-2xl border border-slate-700 hover:border-slate-600 hover:shadow-xl hover:scale-105 transition-all duration-500 animate-fade-in-up"
+                className={`group ${cardBackground} p-8 rounded-2xl ${theme === 'dark' ? 'hover:border-slate-600' : 'hover:border-slate-300'} hover:shadow-xl hover:scale-105 transition-all duration-500 animate-fade-in-up`}
                 style={{ animationDelay: `${feature.delay}ms` }}
               >
                 <div className={`inline-flex p-4 rounded-2xl bg-gradient-to-r ${feature.color} mb-6 group-hover:scale-110 transition-transform duration-300`}>
                   <feature.icon className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-4 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-slate-200 transition-all duration-300">
+                <h3 className={`text-xl font-bold ${textColor} mb-4 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-slate-200 transition-all duration-300`}>
                   {feature.title}
                 </h3>
-                <p className="text-slate-400 leading-relaxed">
+                <p className={`${textMuted} leading-relaxed`}>
                   {feature.description}
                 </p>
                 <div className="mt-6 w-12 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full group-hover:w-full transition-all duration-500"></div>
@@ -185,7 +200,7 @@ export default function Interview() {
           </div>
 
           {/* Stats Section */}
-          <div className="bg-slate-800/30 backdrop-blur-sm rounded-2xl border border-slate-700/50 p-8">
+          <div className={`${cardBackground} rounded-2xl p-8`}>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
               {[
                 { value: '95%', label: 'Success Rate', icon: Target },
@@ -194,8 +209,8 @@ export default function Interview() {
                 { value: '30s', label: 'Setup Time', icon: Zap }
               ].map((stat, index) => (
                 <div key={index} className="space-y-2">
-                  <div className="text-2xl font-bold text-white">{stat.value}</div>
-                  <div className="text-slate-400 text-sm">{stat.label}</div>
+                  <div className={`text-2xl font-bold ${textColor}`}>{stat.value}</div>
+                  <div className={`${textMuted} text-sm`}>{stat.label}</div>
                 </div>
               ))}
             </div>
@@ -211,7 +226,7 @@ export default function Interview() {
               Start Mock Interview
               <Sparkles className="h-5 w-5 ml-2 group-hover:animate-pulse" />
             </button>
-            <p className="mt-4 text-slate-500 text-sm">
+            <p className={`mt-4 ${textMuted} text-sm`}>
               No setup required • Instant AI feedback • Free trial
             </p>
           </div>
@@ -221,30 +236,30 @@ export default function Interview() {
   }
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 px-4 sm:px-6 lg:px-8 ${mounted ? 'animate-fade-in' : 'opacity-0'}`}>
+    <div className={`min-h-screen transition-colors duration-300 ${backgroundStyles} py-8 px-4 sm:px-6 lg:px-8 ${mounted ? 'animate-fade-in' : 'opacity-0'}`}>
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Enhanced Interview Header */}
-        <div className="bg-slate-800/40 backdrop-blur-sm p-6 rounded-2xl border border-slate-700 animate-fade-in-down">
+        <div className={`${cardBackground} p-6 rounded-2xl animate-fade-in-down`}>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
             <div className="flex items-center space-x-4 mb-4 sm:mb-0">
               <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl">
                 <Mic className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-white">
+                <h2 className={`text-xl font-bold ${textColor}`}>
                   Question {currentQuestionIndex + 1} of {questions.length}
                 </h2>
-                <p className="text-slate-400 text-sm">{currentQuestion?.category}</p>
+                <p className={`${textMuted} text-sm`}>{currentQuestion?.category}</p>
               </div>
             </div>
-            <div className="flex items-center space-x-3 bg-slate-700/50 px-4 py-2 rounded-xl border border-slate-600">
+            <div className={`flex items-center space-x-3 ${theme === 'dark' ? 'bg-slate-700/50' : 'bg-slate-100/50'} px-4 py-2 rounded-xl border ${theme === 'dark' ? 'border-slate-600' : 'border-slate-300'}`}>
               <Clock className="h-5 w-5 text-purple-400" />
-              <span className="text-white font-mono text-lg">{formatTime(timeRemaining)}</span>
+              <span className={`${textColor} font-mono text-lg`}>{formatTime(timeRemaining)}</span>
             </div>
           </div>
 
           <div className="flex items-center space-x-4">
-            <div className="flex-1 bg-slate-700 rounded-full h-3">
+            <div className={`flex-1 ${theme === 'dark' ? 'bg-slate-700' : 'bg-slate-300'} rounded-full h-3`}>
               <div
                 className="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full transition-all duration-1000 ease-out"
                 style={{
@@ -252,14 +267,14 @@ export default function Interview() {
                 }}
               />
             </div>
-            <span className="text-sm text-slate-400 font-medium">
+            <span className={`text-sm ${textMuted} font-medium`}>
               {Math.round(((currentQuestionIndex + 1) / questions.length) * 100)}% Complete
             </span>
           </div>
         </div>
 
         {/* Enhanced Current Question */}
-        <div className="bg-slate-800/40 backdrop-blur-sm p-6 rounded-2xl border border-slate-700 animate-fade-in-up">
+        <div className={`${cardBackground} p-6 rounded-2xl animate-fade-in-up`}>
           <div className="flex flex-wrap items-center gap-3 mb-6">
             <div className={`px-4 py-2 text-sm font-semibold rounded-xl border ${
               currentQuestion?.type === 'coding'
@@ -277,23 +292,23 @@ export default function Interview() {
             }`}>
               {currentQuestion?.difficulty}
             </div>
-            <div className="px-4 py-2 text-sm text-slate-400 bg-slate-700/50 rounded-xl border border-slate-600">
+            <div className={`px-4 py-2 text-sm ${textMuted} ${theme === 'dark' ? 'bg-slate-700/50' : 'bg-slate-100/50'} rounded-xl border ${theme === 'dark' ? 'border-slate-600' : 'border-slate-300'}`}>
               ⏱️ {currentQuestion?.timeLimit} minutes
             </div>
           </div>
 
-          <h3 className="text-2xl font-bold text-white mb-6 leading-relaxed">
+          <h3 className={`text-2xl font-bold ${textColor} mb-6 leading-relaxed`}>
             {currentQuestion?.question}
           </h3>
 
           {currentQuestion?.type === 'coding' && (
-            <div className="bg-slate-700/30 p-5 rounded-xl border border-slate-600 mb-4">
-              <h4 className="font-semibold text-white mb-3 flex items-center">
+            <div className={`${theme === 'dark' ? 'bg-slate-700/30' : 'bg-slate-100/50'} p-5 rounded-xl border ${theme === 'dark' ? 'border-slate-600' : 'border-slate-300'} mb-4`}>
+              <h4 className={`font-semibold ${textColor} mb-3 flex items-center`}>
                 <Target className="h-4 w-4 mr-2 text-blue-400" />
                 Example Input/Output
               </h4>
-              <div className="bg-slate-800/60 p-4 rounded-lg border border-slate-600">
-                <code className="text-sm text-slate-300 font-mono">
+              <div className={`${theme === 'dark' ? 'bg-slate-800/60' : 'bg-slate-100'} p-4 rounded-lg border ${theme === 'dark' ? 'border-slate-600' : 'border-slate-300'}`}>
+                <code className={`text-sm ${textColor} font-mono`}>
                   <span className="text-green-400">Input:</span> [3, 1, 4, 1, 5, 9, 2, 6]<br />
                   <span className="text-blue-400">Output:</span> 9<br />
                   <span className="text-amber-400">Explanation:</span> The maximum element is 9
@@ -304,17 +319,17 @@ export default function Interview() {
         </div>
 
         {/* Enhanced Voice Recording Interface */}
-        <div className="bg-slate-800/40 backdrop-blur-sm p-8 rounded-2xl border border-slate-700 text-center animate-fade-in-up">
+        <div className={`${cardBackground} p-8 rounded-2xl text-center animate-fade-in-up`}>
           <div className="mb-8">
             {/* Animated Voice Visualization */}
             <div className="relative w-32 h-32 mx-auto mb-6">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 animate-pulse"></div>
+              <div className={`absolute inset-0 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 animate-pulse`}></div>
               <div className={`absolute inset-4 rounded-full flex items-center justify-center transition-all duration-300 ${
                 isRecording 
                   ? 'bg-red-500 animate-pulse shadow-2xl shadow-red-500/50' 
                   : isListening 
                   ? 'bg-blue-500 shadow-2xl shadow-blue-500/50' 
-                  : 'bg-slate-700 shadow-lg'
+                  : `${theme === 'dark' ? 'bg-slate-700' : 'bg-slate-300'} shadow-lg`
               }`}>
                 {isRecording ? (
                   <div className="relative">
@@ -324,7 +339,7 @@ export default function Interview() {
                 ) : isListening ? (
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
                 ) : (
-                  <Mic className="h-8 w-8 text-slate-300" />
+                  <Mic className={`h-8 w-8 ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`} />
                 )}
               </div>
               
@@ -345,13 +360,13 @@ export default function Interview() {
               )}
             </div>
             
-            <h3 className="text-xl font-bold text-white mb-3">
+            <h3 className={`text-xl font-bold ${textColor} mb-3`}>
               {isRecording ? '🎤 Recording Your Answer...' : 
                isListening ? '🔍 Analyzing Response...' : 
                '🎯 Ready to Answer'}
             </h3>
             
-            <p className="text-slate-400 mb-2">
+            <p className={`${textMuted} mb-2`}>
               {isRecording 
                 ? 'Speak clearly and concisely. Click stop when finished.'
                 : isListening 
@@ -389,7 +404,7 @@ export default function Interview() {
             )}
 
             {isListening && (
-              <div className="flex items-center space-x-3 text-slate-300 bg-slate-700/50 px-6 py-4 rounded-2xl border border-slate-600">
+              <div className={`flex items-center space-x-3 ${textMuted} ${theme === 'dark' ? 'bg-slate-700/50' : 'bg-slate-100/50'} px-6 py-4 rounded-2xl border ${theme === 'dark' ? 'border-slate-600' : 'border-slate-300'}`}>
                 <div className="flex space-x-1">
                   <div className="w-2 h-6 bg-purple-400 rounded-full animate-bounce"></div>
                   <div className="w-2 h-6 bg-purple-400 rounded-full animate-bounce delay-100"></div>
@@ -402,51 +417,51 @@ export default function Interview() {
         </div>
 
         {/* Enhanced AI Response */}
-        <div className="bg-slate-800/40 backdrop-blur-sm p-6 rounded-2xl border border-slate-700 animate-fade-in-up">
-          <h3 className="text-xl font-bold text-white mb-6 flex items-center">
+        <div className={`${cardBackground} p-6 rounded-2xl animate-fade-in-up`}>
+          <h3 className={`text-xl font-bold ${textColor} mb-6 flex items-center`}>
             <Brain className="h-6 w-6 mr-3 text-purple-400" />
             AI Feedback & Analysis
           </h3>
           
           <div className="grid md:grid-cols-2 gap-6 mb-6">
             <div className="space-y-4">
-              <h4 className="font-semibold text-white flex items-center">
+              <h4 className={`font-semibold ${textColor} flex items-center`}>
                 <ThumbsUp className="h-4 w-4 mr-2 text-emerald-400" />
                 Strengths
               </h4>
               <div className="space-y-3">
                 <div className="flex items-center space-x-3 p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
                   <CheckCircle className="h-5 w-5 text-emerald-400 flex-shrink-0" />
-                  <span className="text-sm text-white">Clear problem-solving approach</span>
+                  <span className={`text-sm ${textColor}`}>Clear problem-solving approach</span>
                 </div>
                 <div className="flex items-center space-x-3 p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
                   <CheckCircle className="h-5 w-5 text-emerald-400 flex-shrink-0" />
-                  <span className="text-sm text-white">Good communication skills</span>
+                  <span className={`text-sm ${textColor}`}>Good communication skills</span>
                 </div>
               </div>
             </div>
 
             <div className="space-y-4">
-              <h4 className="font-semibold text-white flex items-center">
+              <h4 className={`font-semibold ${textColor} flex items-center`}>
                 <AlertCircle className="h-4 w-4 mr-2 text-amber-400" />
                 Areas for Improvement
               </h4>
               <div className="space-y-3">
                 <div className="flex items-center space-x-3 p-3 bg-amber-500/10 rounded-xl border border-amber-500/20">
                   <XCircle className="h-5 w-5 text-amber-400 flex-shrink-0" />
-                  <span className="text-sm text-white">Consider edge cases more carefully</span>
+                  <span className={`text-sm ${textColor}`}>Consider edge cases more carefully</span>
                 </div>
                 <div className="flex items-center space-x-3 p-3 bg-amber-500/10 rounded-xl border border-amber-500/20">
                   <XCircle className="h-5 w-5 text-amber-400 flex-shrink-0" />
-                  <span className="text-sm text-white">Work on time management</span>
+                  <span className={`text-sm ${textColor}`}>Work on time management</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-slate-700/30 p-5 rounded-xl border border-slate-600">
+          <div className={`${theme === 'dark' ? 'bg-slate-700/30' : 'bg-slate-100/50'} p-5 rounded-xl border ${theme === 'dark' ? 'border-slate-600' : 'border-slate-300'}`}>
             <div className="flex items-center justify-between mb-3">
-              <h4 className="font-semibold text-white flex items-center">
+              <h4 className={`font-semibold ${textColor} flex items-center`}>
                 <Crown className="h-4 w-4 mr-2 text-amber-400" />
                 Overall Assessment
               </h4>
@@ -454,7 +469,7 @@ export default function Interview() {
                 7/10
               </div>
             </div>
-            <p className="text-slate-300 text-sm leading-relaxed">
+            <p className={`${textMuted} text-sm leading-relaxed`}>
               <strong>Summary:</strong> Your solution demonstrates good algorithmic thinking and clear communication. 
               The approach is logical, but would benefit from considering edge cases like empty arrays or single elements. 
               Try to explain your thought process more systematically and practice time management for complex problems.
@@ -466,7 +481,7 @@ export default function Interview() {
         <div className="flex justify-between animate-fade-in-up">
           <button
             onClick={() => setInterviewSession(null)}
-            className="group px-6 py-3 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-xl transition-all duration-300 border border-slate-700 hover:border-slate-600"
+            className={`group px-6 py-3 ${textMuted} hover:${textColor} ${hoverBackground} rounded-xl transition-all duration-300 border ${theme === 'dark' ? 'border-slate-700' : 'border-slate-300'} hover:${theme === 'dark' ? 'border-slate-600' : 'border-slate-400'}`}
           >
             ← Exit Interview
           </button>

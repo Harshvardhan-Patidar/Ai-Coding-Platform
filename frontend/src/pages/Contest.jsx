@@ -14,11 +14,13 @@ import {
   Award,
   TrendingUp
 } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function Contest() {
   const [activeTab, setActiveTab] = useState('active');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const { theme } = useTheme();
 
   useEffect(() => {
     setMounted(true);
@@ -75,6 +77,19 @@ export default function Contest() {
     }
   ];
 
+  // Theme-based styles
+  const backgroundStyles = theme === 'dark' 
+    ? 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900'
+    : 'bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50';
+
+  const cardBackground = theme === 'dark'
+    ? 'bg-slate-800/40 backdrop-blur-sm border border-slate-700'
+    : 'bg-white/80 backdrop-blur-sm border border-slate-200';
+
+  const textColor = theme === 'dark' ? 'text-white' : 'text-slate-900';
+  const textMuted = theme === 'dark' ? 'text-slate-300' : 'text-slate-600';
+  const hoverBackground = theme === 'dark' ? 'hover:bg-slate-700/50' : 'hover:bg-slate-100';
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'active':
@@ -109,24 +124,28 @@ export default function Contest() {
       if (registered) {
         return 'bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white shadow-lg hover:shadow-blue-500/25';
       }
-      return 'bg-slate-800/50 border border-slate-700 hover:border-blue-500/50 text-slate-300 hover:text-white';
+      return theme === 'dark' 
+        ? 'bg-slate-800/50 border border-slate-700 hover:border-blue-500/50 text-slate-300 hover:text-white'
+        : 'bg-white/50 border border-slate-300 hover:border-blue-500/50 text-slate-600 hover:text-slate-900';
     }
-    return 'bg-slate-800/50 border border-slate-700 hover:border-purple-500/50 text-slate-300 hover:text-white';
+    return theme === 'dark'
+      ? 'bg-slate-800/50 border border-slate-700 hover:border-purple-500/50 text-slate-300 hover:text-white'
+      : 'bg-white/50 border border-slate-300 hover:border-purple-500/50 text-slate-600 hover:text-slate-900';
   };
 
   const filteredContests = mockContests.filter(contest => contest.status === activeTab);
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 ${mounted ? 'animate-fade-in' : 'opacity-0'}`}>
+    <div className={`min-h-screen transition-colors duration-300 ${backgroundStyles} ${mounted ? 'animate-fade-in' : 'opacity-0'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Enhanced Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8">
           <div className="relative mb-6 lg:mb-0">
             <div className="absolute -left-4 top-0 w-1 h-full bg-gradient-to-b from-amber-400 to-orange-500 rounded-full"></div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-200 to-orange-400 bg-clip-text text-transparent">
+            <h1 className={`text-4xl font-bold bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent`}>
               Coding Contests
             </h1>
-            <p className="text-slate-400 mt-3 text-lg flex items-center">
+            <p className={`${textMuted} mt-3 text-lg flex items-center`}>
               <Sparkles className="h-5 w-5 mr-2 text-amber-400 animate-pulse" />
               Compete with developers worldwide in real-time coding challenges
             </p>
@@ -142,7 +161,7 @@ export default function Contest() {
         </div>
 
         {/* Enhanced Tabs */}
-        <div className="bg-slate-800/30 backdrop-blur-sm rounded-2xl border border-slate-700/50 p-2 mb-8">
+        <div className={`${theme === 'dark' ? 'bg-slate-800/30' : 'bg-white/60'} backdrop-blur-sm rounded-2xl border ${theme === 'dark' ? 'border-slate-700/50' : 'border-slate-200'} p-2 mb-8`}>
           <div className="flex space-x-2">
             {[
               { id: 'active', name: 'Active', count: mockContests.filter(c => c.status === 'active').length, icon: Zap },
@@ -157,15 +176,15 @@ export default function Contest() {
                   className={`flex items-center px-6 py-3 rounded-xl font-medium transition-all duration-300 flex-1 justify-center group ${
                     activeTab === tab.id
                       ? 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 border border-amber-500/30 shadow-lg shadow-amber-500/10'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'
+                      : `${textMuted} ${hoverBackground}`
                   }`}
                 >
-                  <Icon className={`h-5 w-5 mr-2 ${activeTab === tab.id ? 'text-amber-400' : 'text-slate-500 group-hover:text-slate-300'}`} />
+                  <Icon className={`h-5 w-5 mr-2 ${activeTab === tab.id ? 'text-amber-400' : theme === 'dark' ? 'text-slate-500 group-hover:text-slate-300' : 'text-slate-400 group-hover:text-slate-600'}`} />
                   <span>{tab.name}</span>
                   <span className={`ml-2 px-2 py-1 text-xs rounded-full ${
                     activeTab === tab.id 
                       ? 'bg-amber-500/20 text-amber-400' 
-                      : 'bg-slate-700/50 text-slate-500 group-hover:text-slate-300'
+                      : theme === 'dark' ? 'bg-slate-700/50 text-slate-500 group-hover:text-slate-300' : 'bg-slate-200/50 text-slate-400 group-hover:text-slate-600'
                   }`}>
                     {tab.count}
                   </span>
@@ -181,7 +200,7 @@ export default function Contest() {
             filteredContests.map((contest, index) => (
               <div 
                 key={contest.id} 
-                className="group bg-slate-800/40 backdrop-blur-sm p-8 rounded-2xl border border-slate-700 hover:border-slate-600 hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 animate-fade-in-up"
+                className={`group ${cardBackground} p-8 rounded-2xl ${theme === 'dark' ? 'hover:border-slate-600' : 'hover:border-slate-300'} hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 animate-fade-in-up`}
                 style={{ animationDelay: `${index * 150}ms` }}
               >
                 <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between">
@@ -195,10 +214,10 @@ export default function Contest() {
                           )}
                         </div>
                         <div>
-                          <h3 className="text-2xl font-bold text-slate-200 group-hover:text-white transition-colors">
+                          <h3 className={`text-2xl font-bold ${textColor} group-hover:${theme === 'dark' ? 'text-white' : 'text-slate-900'} transition-colors`}>
                             {contest.name}
                           </h3>
-                          <p className="text-slate-400 mt-1">{contest.description}</p>
+                          <p className={`${textMuted} mt-1`}>{contest.description}</p>
                         </div>
                       </div>
                       <div className="flex space-x-2">
@@ -212,25 +231,25 @@ export default function Contest() {
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                      <div className="flex items-center space-x-3 p-3 bg-slate-700/30 rounded-lg">
+                      <div className={`flex items-center space-x-3 p-3 ${theme === 'dark' ? 'bg-slate-700/30' : 'bg-slate-100/50'} rounded-lg`}>
                         <Users className="h-5 w-5 text-blue-400" />
                         <div>
-                          <p className="text-slate-400 text-sm">Participants</p>
-                          <p className="text-slate-200 font-semibold">{contest.participants.toLocaleString()}</p>
+                          <p className={`${textMuted} text-sm`}>Participants</p>
+                          <p className={`${textColor} font-semibold`}>{contest.participants.toLocaleString()}</p>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-3 p-3 bg-slate-700/30 rounded-lg">
+                      <div className={`flex items-center space-x-3 p-3 ${theme === 'dark' ? 'bg-slate-700/30' : 'bg-slate-100/50'} rounded-lg`}>
                         <Clock className="h-5 w-5 text-purple-400" />
                         <div>
-                          <p className="text-slate-400 text-sm">Duration</p>
-                          <p className="text-slate-200 font-semibold">{contest.duration} minutes</p>
+                          <p className={`${textMuted} text-sm`}>Duration</p>
+                          <p className={`${textColor} font-semibold`}>{contest.duration} minutes</p>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-3 p-3 bg-slate-700/30 rounded-lg">
+                      <div className={`flex items-center space-x-3 p-3 ${theme === 'dark' ? 'bg-slate-700/30' : 'bg-slate-100/50'} rounded-lg`}>
                         <Award className="h-5 w-5 text-amber-400" />
                         <div>
-                          <p className="text-slate-400 text-sm">Prize</p>
-                          <p className="text-slate-200 font-semibold">{contest.prize}</p>
+                          <p className={`${textMuted} text-sm`}>Prize</p>
+                          <p className={`${textColor} font-semibold`}>{contest.prize}</p>
                         </div>
                       </div>
                     </div>
@@ -264,7 +283,7 @@ export default function Contest() {
                         View Results
                       </button>
                     )}
-                    <button className="px-4 py-3 text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 rounded-xl transition-all duration-300">
+                    <button className={`px-4 py-3 ${textMuted} hover:${textColor} ${hoverBackground} rounded-xl transition-all duration-300`}>
                       <Star className="h-4 w-4" />
                     </button>
                   </div>
@@ -275,13 +294,13 @@ export default function Contest() {
             /* Enhanced Empty State */
             <div className="text-center py-16 animate-fade-in">
               <div className="relative inline-block mb-6">
-                <Trophy className="h-20 w-20 text-slate-600 mx-auto" />
-                <div className="absolute inset-0 bg-slate-600/20 rounded-full animate-ping"></div>
+                <Trophy className={`h-20 w-20 ${theme === 'dark' ? 'text-slate-600' : 'text-slate-400'} mx-auto`} />
+                <div className={`absolute inset-0 ${theme === 'dark' ? 'bg-slate-600/20' : 'bg-slate-400/20'} rounded-full animate-ping`}></div>
               </div>
-              <h3 className="text-2xl font-bold text-slate-300 mb-3">
+              <h3 className={`text-2xl font-bold ${textColor} mb-3`}>
                 No {activeTab} contests found
               </h3>
-              <p className="text-slate-500 mb-6 max-w-md mx-auto text-lg">
+              <p className={`${textMuted} mb-6 max-w-md mx-auto text-lg`}>
                 {activeTab === 'active' 
                   ? 'No contests are currently running. Check back later for new challenges!'
                   : activeTab === 'upcoming'
@@ -305,14 +324,14 @@ export default function Contest() {
         {/* Enhanced Create Contest Modal */}
         {showCreateModal && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
-            <div className="bg-slate-800/90 backdrop-blur-sm p-8 rounded-3xl border border-slate-700 w-full max-w-2xl mx-4 shadow-2xl animate-scale-in">
+            <div className={`${theme === 'dark' ? 'bg-slate-800/90' : 'bg-white/90'} backdrop-blur-sm p-8 rounded-3xl border ${theme === 'dark' ? 'border-slate-700' : 'border-slate-200'} w-full max-w-2xl mx-4 shadow-2xl animate-scale-in`}>
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                   Create New Contest
                 </h3>
                 <button
                   onClick={() => setShowCreateModal(false)}
-                  className="text-slate-400 hover:text-slate-200 transition-colors p-2 hover:bg-slate-700/50 rounded-xl"
+                  className={`${textMuted} hover:${textColor} transition-colors p-2 ${hoverBackground} rounded-xl`}
                 >
                   <Plus className="h-5 w-5 rotate-45" />
                 </button>
@@ -321,57 +340,57 @@ export default function Contest() {
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-slate-300">
+                    <label className={`block text-sm font-semibold ${textColor}`}>
                       Contest Name
                     </label>
                     <input
                       type="text"
-                      className="w-full px-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300"
+                      className={`w-full px-4 py-3 ${theme === 'dark' ? 'bg-slate-900/80' : 'bg-white/60'} border ${theme === 'dark' ? 'border-slate-700' : 'border-slate-300'} rounded-xl ${textColor} placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300`}
                       placeholder="Enter contest name"
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-slate-300">
+                    <label className={`block text-sm font-semibold ${textColor}`}>
                       Duration (minutes)
                     </label>
                     <input
                       type="number"
-                      className="w-full px-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300"
+                      className={`w-full px-4 py-3 ${theme === 'dark' ? 'bg-slate-900/80' : 'bg-white/60'} border ${theme === 'dark' ? 'border-slate-700' : 'border-slate-300'} rounded-xl ${textColor} placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300`}
                       placeholder="60"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-slate-300">
+                    <label className={`block text-sm font-semibold ${textColor}`}>
                       Difficulty
                     </label>
-                    <select className="w-full px-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300">
-                      <option value="easy" className="bg-slate-800 text-emerald-400">Easy</option>
-                      <option value="medium" className="bg-slate-800 text-amber-400">Medium</option>
-                      <option value="hard" className="bg-slate-800 text-rose-400">Hard</option>
+                    <select className={`w-full px-4 py-3 ${theme === 'dark' ? 'bg-slate-900/80' : 'bg-white/60'} border ${theme === 'dark' ? 'border-slate-700' : 'border-slate-300'} rounded-xl ${textColor} focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300`}>
+                      <option value="easy" className={`${theme === 'dark' ? 'bg-slate-800' : 'bg-white'} text-emerald-400`}>Easy</option>
+                      <option value="medium" className={`${theme === 'dark' ? 'bg-slate-800' : 'bg-white'} text-amber-400`}>Medium</option>
+                      <option value="hard" className={`${theme === 'dark' ? 'bg-slate-800' : 'bg-white'} text-rose-400`}>Hard</option>
                     </select>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-slate-300">
+                    <label className={`block text-sm font-semibold ${textColor}`}>
                       Prize
                     </label>
                     <input
                       type="text"
-                      className="w-full px-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300"
+                      className={`w-full px-4 py-3 ${theme === 'dark' ? 'bg-slate-900/80' : 'bg-white/60'} border ${theme === 'dark' ? 'border-slate-700' : 'border-slate-300'} rounded-xl ${textColor} placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300`}
                       placeholder="e.g., $100 Gift Card"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-slate-300">
+                  <label className={`block text-sm font-semibold ${textColor}`}>
                     Description
                   </label>
                   <textarea
                     rows={3}
-                    className="w-full px-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 resize-none"
+                    className={`w-full px-4 py-3 ${theme === 'dark' ? 'bg-slate-900/80' : 'bg-white/60'} border ${theme === 'dark' ? 'border-slate-700' : 'border-slate-300'} rounded-xl ${textColor} placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 resize-none`}
                     placeholder="Describe your contest..."
                   />
                 </div>
@@ -380,7 +399,7 @@ export default function Contest() {
               <div className="flex justify-end space-x-3 mt-8">
                 <button
                   onClick={() => setShowCreateModal(false)}
-                  className="px-6 py-3 text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 rounded-xl transition-all duration-300 font-semibold"
+                  className={`px-6 py-3 ${textMuted} hover:${textColor} ${hoverBackground} rounded-xl transition-all duration-300 font-semibold`}
                 >
                   Cancel
                 </button>
