@@ -64,17 +64,18 @@ export function AuthProvider({ children }) {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          const user = await authService.getCurrentUser();
+          const response = await authService.getCurrentUser();
           dispatch({
             type: 'LOGIN_SUCCESS',
-            payload: { user, token },
+            payload: { user: response.user, token },
           });
         } catch (error) {
+          console.error('Auth initialization error:', error);
           localStorage.removeItem('token');
           dispatch({ type: 'LOGIN_FAILURE' });
         }
       } else {
-        dispatch({ type: 'LOGIN_FAILURE' });
+        dispatch({ type: 'SET_LOADING', payload: false });
       }
     };
 
@@ -93,7 +94,10 @@ export function AuthProvider({ children }) {
       return { success: true };
     } catch (error) {
       dispatch({ type: 'LOGIN_FAILURE' });
-      return { success: false, error: error.message };
+      return { 
+        success: false, 
+        error: error.response?.data?.message || error.message || 'Login failed' 
+      };
     }
   };
 
@@ -109,13 +113,22 @@ export function AuthProvider({ children }) {
       return { success: true };
     } catch (error) {
       dispatch({ type: 'LOGIN_FAILURE' });
-      return { success: false, error: error.message };
+      return { 
+        success: false, 
+        error: error.response?.data?.message || error.message || 'Registration failed' 
+      };
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    dispatch({ type: 'LOGOUT' });
+  const logout = async () => {
+    try {
+      await authService.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      localStorage.removeItem('token');
+      dispatch({ type: 'LOGOUT' });
+    }
   };
 
   const updateUser = (userData) => {

@@ -16,7 +16,7 @@ const interviewSchema = new mongoose.Schema({
   sessionId: { type: String, required: true, unique: true },
   type: {
     type: String,
-    enum: ['mock', 'practice', 'assessment'],
+    enum: ['mock', 'coding','behavioral'],
     default: 'practice'
   },
   duration: { type: Number, required: true }, // in minutes
