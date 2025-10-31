@@ -3,13 +3,19 @@ const { body, validationResult } = require('express-validator');
 const Interview = require('../models/Interview');
 const Question = require('../models/Question');
 const { auth } = require('../middleware/auth');
+import multer from 'multer';
+import fs from 'fs';
+import path from 'path';
 const geminiService = require('../utils/gemini');
 
 const router = express.Router();
 
+// Temporary storage for uploaded audio
+const upload = multer({ dest: 'uploads/' });
+
 // Start a new interview session
 router.post('/start', auth, [
-  body('type').isIn(['mock', 'practice', 'assessment']).withMessage('Invalid interview type'),
+  body('type').isIn(['mock', 'practice', 'assessment','coding','behavioral']).withMessage('Invalid interview type'),
   body('duration').isInt({ min: 15, max: 180 }).withMessage('Duration must be between 15 and 180 minutes')
 ], async (req, res) => {
   try {
@@ -124,35 +130,57 @@ router.post('/:sessionId/start', auth, async (req, res) => {
   }
 });
 
-// Submit answer for a question
+// Submit answer for a question - with enhanced debugging
 router.post('/:sessionId/answer', auth, [
   body('questionIndex').isInt({ min: 0 }).withMessage('Question index must be a non-negative integer'),
   body('answer').notEmpty().withMessage('Answer is required'),
   body('timeSpent').isInt({ min: 0 }).withMessage('Time spent must be a non-negative integer')
 ], async (req, res) => {
   try {
+    console.log('=== ANSWER SUBMISSION REQUEST ===');
+    console.log('Session ID:', req.params.sessionId);
+    console.log('User ID:', req.user._id);
+    console.log('Request Body:', JSON.stringify(req.body, null, 2));
+    
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      console.log('Validation errors:', errors.array());
+      return res.status(400).json({ 
+        message: 'Validation failed',
+        errors: errors.array() 
+      });
     }
 
     const { questionIndex, answer, timeSpent, hintsUsed = 0 } = req.body;
+    const { sessionId } = req.params;
+    
+    console.log('Processing answer for question index:', questionIndex);
     
     const interview = await Interview.findOne({
-      sessionId: req.params.sessionId,
+      sessionId: sessionId,
       userId: req.user._id
     });
     
     if (!interview) {
+      console.log('Interview not found for session:', sessionId);
       return res.status(404).json({ message: 'Interview session not found' });
     }
     
+    console.log('Interview status:', interview.status);
+    
     if (interview.status !== 'in_progress') {
-      return res.status(400).json({ message: 'Interview is not in progress' });
+      return res.status(400).json({ 
+        message: 'Interview is not in progress',
+        currentStatus: interview.status 
+      });
     }
     
     if (questionIndex >= interview.questions.length) {
-      return res.status(400).json({ message: 'Invalid question index' });
+      return res.status(400).json({ 
+        message: 'Invalid question index',
+        maxIndex: interview.questions.length - 1,
+        receivedIndex: questionIndex
+      });
     }
     
     // Update the question response
@@ -160,6 +188,8 @@ router.post('/:sessionId/answer', auth, [
     question.userAnswer = answer;
     question.timeSpent = timeSpent;
     question.hintsUsed = hintsUsed;
+    
+    console.log('Question updated, getting AI analysis...');
     
     // Get AI analysis of the answer
     try {
@@ -171,17 +201,21 @@ router.post('/:sessionId/answer', auth, [
       
       // Parse AI response to extract score and feedback
       const scoreMatch = aiAnalysis.match(/Score[:\s]*(\d+)/i);
-      const score = scoreMatch ? parseInt(scoreMatch[1]) : 5; // Default score of 5
+      const score = scoreMatch ? parseInt(scoreMatch[1]) : 5;
       
       question.aiFeedback = aiAnalysis;
-      question.score = Math.min(Math.max(score, 0), 10); // Clamp between 0 and 10
+      question.score = Math.min(Math.max(score, 0), 10);
+      
+      console.log('AI analysis completed, score:', question.score);
     } catch (aiError) {
       console.error('AI analysis error:', aiError);
-      question.score = 5; // Default score if AI analysis fails
+      question.score = 5;
       question.aiFeedback = 'AI analysis temporarily unavailable.';
     }
     
     await interview.save();
+    
+    console.log('Answer submitted successfully');
     
     res.json({
       message: 'Answer submitted successfully',
@@ -193,61 +227,172 @@ router.post('/:sessionId/answer', auth, [
     });
   } catch (error) {
     console.error('Submit answer error:', error);
-    res.status(500).json({ message: 'Server error while submitting answer' });
+    res.status(500).json({ 
+      message: 'Server error while submitting answer',
+      error: error.message 
+    });
   }
 });
 
 // Complete interview
 router.post('/:sessionId/complete', auth, async (req, res) => {
   try {
+    const { sessionId } = req.params;
+    
+    console.log('=== COMPLETING INTERVIEW ===');
+    console.log('Session ID:', sessionId);
+    console.log('User ID:', req.user._id);
+
     const interview = await Interview.findOne({
-      sessionId: req.params.sessionId,
+      sessionId: sessionId,
       userId: req.user._id
     });
-    
+
     if (!interview) {
+      console.log('Interview not found');
       return res.status(404).json({ message: 'Interview session not found' });
     }
-    
+
+    console.log('Interview found, current status:', interview.status);
+
     if (interview.status !== 'in_progress') {
-      return res.status(400).json({ message: 'Interview is not in progress' });
+      return res.status(400).json({ 
+        message: 'Interview is not in progress',
+        currentStatus: interview.status 
+      });
     }
+
+    // Calculate overall score
+    let totalScore = 0;
+    let answeredQuestions = 0;
     
-    // Calculate overall score and generate feedback
-    interview.calculateOverallScore();
-    interview.generateFeedback();
+    interview.questions.forEach((question, index) => {
+      const score = Number(question.score);
+      if (!isNaN(score) && score >= 0) {
+        totalScore += score;
+        answeredQuestions++;
+      }
+    });
     
-    // Generate AI analysis scores
+    const overallScore = answeredQuestions > 0 ? Math.round((totalScore / answeredQuestions) * 10) : 0;
+    interview.overallScore = overallScore;
+
+    // Calculate time metrics
     const totalTime = interview.questions.reduce((sum, q) => sum + (q.timeSpent || 0), 0);
-    const avgTimePerQuestion = totalTime / interview.questions.length;
+    const avgTimePerQuestion = interview.questions.length > 0 ? totalTime / interview.questions.length : 0;
     
+    // Calculate average question score
+    const avgQuestionScore = interview.questions.length > 0 
+      ? interview.questions.reduce((sum, q) => sum + (q.score || 0), 0) / interview.questions.length 
+      : 5;
+
+    // Generate AI analysis scores
     interview.aiAnalysis = {
-      communicationScore: Math.round(interview.questions.reduce((sum, q) => sum + (q.score || 0), 0) / interview.questions.length),
-      problemSolvingScore: Math.round(interview.questions.reduce((sum, q) => sum + (q.score || 0), 0) / interview.questions.length),
-      codeQualityScore: Math.round(interview.questions.reduce((sum, q) => sum + (q.score || 0), 0) / interview.questions.length),
-      timeManagementScore: avgTimePerQuestion < 300 ? 8 : avgTimePerQuestion < 600 ? 6 : 4, // 5min = 8, 10min = 6, >10min = 4
-      confidenceScore: Math.round(interview.questions.reduce((sum, q) => sum + (q.score || 0), 0) / interview.questions.length)
+      communicationScore: Math.max(1, Math.min(10, Math.round(avgQuestionScore) || 5)),
+      problemSolvingScore: Math.max(1, Math.min(10, Math.round(avgQuestionScore) || 5)),
+      codeQualityScore: Math.max(1, Math.min(10, Math.round(avgQuestionScore) || 5)),
+      timeManagementScore: avgTimePerQuestion < 300 ? 8 : avgTimePerQuestion < 600 ? 6 : 4,
+      confidenceScore: Math.max(1, Math.min(10, Math.round(avgQuestionScore) || 5))
     };
-    
+
+    // Generate feedback according to your model structure
+    const strengths = [];
+    const weaknesses = [];
+    const recommendations = [];
+    let overallComments = '';
+
+    // Analyze scores for feedback
+    if (overallScore >= 80) {
+      strengths.push('Excellent overall performance');
+      overallComments = "Excellent performance! You demonstrated strong problem-solving skills and clear communication.";
+    } else if (overallScore >= 60) {
+      strengths.push('Good overall performance');
+      overallComments = "Good performance. You have a solid understanding but can improve on some areas.";
+    } else if (overallScore >= 40) {
+      weaknesses.push('Needs improvement in several areas');
+      overallComments = "Fair performance. Consider practicing more to improve your skills.";
+    } else {
+      weaknesses.push('Significant improvement needed');
+      overallComments = "Needs improvement. Focus on fundamental concepts and practice regularly.";
+    }
+
+    // Add specific feedback based on AI analysis
+    if (interview.aiAnalysis.communicationScore >= 8) {
+      strengths.push('Clear and effective communication');
+    } else if (interview.aiAnalysis.communicationScore <= 5) {
+      weaknesses.push('Communication could be more clear');
+      recommendations.push('Practice explaining your thought process more clearly');
+    }
+
+    if (interview.aiAnalysis.problemSolvingScore >= 8) {
+      strengths.push('Strong problem-solving approach');
+    } else if (interview.aiAnalysis.problemSolvingScore <= 5) {
+      weaknesses.push('Problem-solving approach needs refinement');
+      recommendations.push('Break down problems into smaller steps before solving');
+    }
+
+    if (interview.aiAnalysis.timeManagementScore >= 8) {
+      strengths.push('Good time management');
+    } else if (interview.aiAnalysis.timeManagementScore <= 5) {
+      weaknesses.push('Time management needs improvement');
+      recommendations.push('Practice with time constraints to improve pacing');
+    }
+
+    // Set the feedback object according to your model
+    interview.feedback = {
+      strengths,
+      weaknesses,
+      recommendations,
+      overallComments
+    };
+
+    // Update status and completion time
     interview.status = 'completed';
     interview.completedAt = new Date();
+
+    // Calculate duration
+    const durationMinutes = interview.startedAt 
+      ? Math.round((interview.completedAt - interview.startedAt) / 1000 / 60)
+      : interview.duration;
+
+    console.log('Saving interview with data:', {
+      overallScore,
+      feedback: interview.feedback,
+      aiAnalysis: interview.aiAnalysis
+    });
+
+    // Save the interview
     await interview.save();
     
+    console.log('Interview completed successfully');
+
     res.json({
       message: 'Interview completed successfully',
       interview: {
         id: interview._id,
         sessionId: interview.sessionId,
+        type: interview.type,
         overallScore: interview.overallScore,
         feedback: interview.feedback,
         aiAnalysis: interview.aiAnalysis,
         completedAt: interview.completedAt,
-        duration: Math.round((interview.completedAt - interview.startedAt) / 1000 / 60) // in minutes
+        duration: durationMinutes,
+        questions: interview.questions.map((q, index) => ({
+          index,
+          score: q.score || 0,
+          feedback: q.aiFeedback || 'No feedback available'
+        }))
       }
     });
+
   } catch (error) {
     console.error('Complete interview error:', error);
-    res.status(500).json({ message: 'Server error while completing interview' });
+    console.error('Error details:', error.message);
+    
+    res.status(500).json({ 
+      message: 'Server error while completing interview',
+      error: error.message
+    });
   }
 });
 
@@ -283,7 +428,7 @@ router.get('/history', auth, async (req, res) => {
 });
 
 // Get interview analytics
-router.get('/analytics', auth, async (req, res) => {
+router.get('/analyze-complexity', auth, async (req, res) => {
   try {
     const interviews = await Interview.find({ 
       userId: req.user._id,
@@ -371,6 +516,28 @@ router.get('/analytics', auth, async (req, res) => {
   } catch (error) {
     console.error('Get interview analytics error:', error);
     res.status(500).json({ message: 'Server error while fetching interview analytics' });
+  }
+});
+
+router.post('/speech-to-text', upload.single('audio'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No audio file uploaded' });
+    }
+
+    const filePath = path.resolve(req.file.path);
+    const mimeType = req.file.mimetype;
+
+    // Call Gemini service
+    const transcript = await geminiService.transcribeAudio(filePath, mimeType);
+
+    // Clean up temporary file
+    fs.unlinkSync(filePath);
+
+    res.status(200).json({ text: transcript });
+  } catch (error) {
+    console.error('Speech-to-text error:', error.message);
+    res.status(500).json({ error: 'Failed to process audio' });
   }
 });
 

@@ -7,6 +7,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 10000,
 });
 
 // Request interceptor to add auth token
@@ -27,10 +28,28 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+    if (error.response) {
+      // Server responded with error status
+      const message = error.response.data?.message || 'An error occurred';
+      
+      if (error.response.status === 401) {
+        localStorage.removeItem('token');
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
+      }
+      
+      // Create a better error object
+      error.message = message;
+      error.status = error.response.status;
+    } else if (error.request) {
+      // Request was made but no response received
+      error.message = 'Network error: Unable to connect to server';
+    } else {
+      // Something else happened
+      error.message = error.message || 'An unexpected error occurred';
     }
+    
     return Promise.reject(error);
   }
 );

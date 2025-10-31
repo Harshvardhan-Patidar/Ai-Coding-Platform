@@ -1,7 +1,15 @@
 const axios = require('axios');
+import fs from 'fs';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyA7C4anyNxXOUVYN-lshnIAhfIUwFfKy4c';
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+
+/**
+ * Convert speech audio into text using Gemini API
+ * @param {string} filePath - path of uploaded audio file
+ * @param {string} mimeType - mime type (e.g., 'audio/webm')
+ * @returns {Promise<string>} transcribed text
+ */
 
 class GeminiService {
   constructor() {
@@ -62,6 +70,46 @@ class GeminiService {
       throw new Error('Failed to generate content with Gemini API');
     }
   }
+
+  async transcribeAudio(filePath, mimeType = 'audio/webm') {
+  try {
+    const audioData = fs.readFileSync(filePath);
+    const base64Audio = audioData.toString('base64');
+
+    const payload = {
+      contents: [
+        {
+          parts: [
+            {
+              inline_data: {
+                mime_type: mimeType,
+                data: base64Audio,
+              },
+            },
+            {
+              text: 'Transcribe this spoken audio accurately into plain text.',
+            },
+          ],
+        },
+      ],
+    };
+
+    const response = await axios.post(
+      `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,
+      payload,
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+
+    const text =
+      response.data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      'Transcription failed';
+
+    return text;
+  } catch (error) {
+    console.error('❌ Gemini transcription error:', error.response?.data || error.message);
+    throw new Error('Failed to transcribe audio');
+  }
+};
 
   async debugCode(code, language, errorMessage, testCase) {
     const prompt = `
