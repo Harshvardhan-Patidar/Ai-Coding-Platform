@@ -3,9 +3,9 @@ const { body, validationResult } = require('express-validator');
 const Interview = require('../models/Interview');
 const Question = require('../models/Question');
 const { auth } = require('../middleware/auth');
-import multer from 'multer';
-import fs from 'fs';
-import path from 'path';
+const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
 const geminiService = require('../utils/gemini');
 
 const router = express.Router();
