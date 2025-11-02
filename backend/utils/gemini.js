@@ -1,5 +1,5 @@
 const axios = require('axios');
-import fs from 'fs';
+const fs = require('fs');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyA7C4anyNxXOUVYN-lshnIAhfIUwFfKy4c';
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
