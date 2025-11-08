@@ -67,6 +67,17 @@ questionSchema.methods.updateAcceptanceRate = function(isCorrect) {
     this.correctSubmissions += 1;
   }
   this.acceptanceRate = this.acceptanceRatePercentage;
+  return this.save();
+};
+
+// Update average time
+questionSchema.methods.updateAverageTime = function(timeTaken) {
+  if (this.averageTime === 0) {
+    this.averageTime = timeTaken;
+  } else {
+    this.averageTime = (this.averageTime + timeTaken) / 2;
+  }
+  return this.save();
 };
 
 // Index for performance
@@ -76,5 +87,11 @@ questionSchema.index({ companies: 1 });
 questionSchema.index({ acceptanceRate: -1 });
 questionSchema.index({ createdAt: -1 });
 questionSchema.index({ isActive: 1 });
+
+// Middleware to update updatedAt before saving
+questionSchema.pre('save', function(next) {
+  this.updatedAt = Date.now();
+  next();
+});
 
 module.exports = mongoose.model('Question', questionSchema);
