@@ -44,14 +44,17 @@ export default function Questions() {
   const textMuted = theme === 'dark' ? 'text-slate-300' : 'text-slate-600';
   const hoverBackground = theme === 'dark' ? 'hover:bg-slate-700/50' : 'hover:bg-slate-100';
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['questions', filters],
     queryFn: () => questionService.getQuestions(filters),
+    retry: 3,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   const { data: filterOptions } = useQuery({
     queryKey: ['question-filters'],
     queryFn: questionService.getFilters,
+    staleTime: 1000 * 60 * 30, // 30 minutes
   });
 
   const handleFilterChange = (key, value) => {
@@ -111,6 +114,12 @@ export default function Questions() {
         </div>
         <h3 className={`text-xl font-bold ${textColor} mb-2`}>Error Loading Questions</h3>
         <p className={textMuted}>Please try again later.</p>
+        <button
+          onClick={() => refetch()}
+          className="mt-4 px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
+        >
+          Retry
+        </button>
       </div>
     );
   }
@@ -271,9 +280,9 @@ export default function Questions() {
                     </span>
                   </div>
                   
-                  <p className={`${textMuted} mb-4 line-clamp-2 group-hover:${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'} transition-colors`}>
+                  {/* <p className={`${textMuted} mb-4 line-clamp-2 group-hover:${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'} transition-colors`}>
                     {question.description}
-                  </p>
+                  </p> */}
                   
                   <div className="flex flex-wrap gap-2 mb-4">
                     {question.topics?.slice(0, 3).map((topic) => (

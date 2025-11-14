@@ -63,7 +63,12 @@ export const questionService = {
       });
       return response.data;
     } catch (error) {
-      console.error('Error getting hints:', error);
+      console.error('Error getting hints:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        config: error.config
+      });
       // Return fallback hints if API fails
       return {
         hints: "Think about the problem step by step. Consider edge cases and break down the problem into smaller subproblems. Try to solve the problem manually with examples first."
@@ -94,7 +99,9 @@ export const questionService = {
       return response.data;
     } catch (error) {
       console.error('Error getting algorithm explanation:', error);
-      throw error;
+      return {
+        explain: "Algorithm explanation is currently unavailable. Please check your code for syntax errors, variable naming consistency, proper return statements, and edge case handling."
+      };
     }
   },
 

@@ -32,6 +32,10 @@ export default function QuestionDetail() {
   const [result, setResult] = useState(null);
   const [showHints, setShowHints] = useState(false);
   const [hints, setHints] = useState([]);
+  const [showDebug, setShowDebug] = useState(false);
+  const [Debug, setDebug] = useState([]);
+  const [showExplan, setShowExplain] = useState(false);
+  const [Explain, setExplain] = useState([]);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -53,6 +57,7 @@ export default function QuestionDetail() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['question', id],
     queryFn: () => questionService.getQuestion(id),
+    retry: 3,
   });
 
   const question = data?.question;
@@ -61,13 +66,27 @@ export default function QuestionDetail() {
     if (question?.userSubmission?.code) {
       setCode(question.userSubmission.code);
       setLanguage(question.userSubmission.language);
+    } else {
+      // Set default starter code based on language
+      setCode(getStarterCode(language));
     }
-  }, [question]);
+  }, [question, language]);
+
+  const getStarterCode = (lang) => {
+    const starters = {
+      javascript: `function solution(input) {\n    // Your code here\n    \n}`,
+      python: `def solution(input):\n    # Your code here\n    pass`,
+      java: `public class Solution {\n    public static void main(String[] args) {\n        // Your code here\n    }\n}`,
+      cpp: `#include <iostream>\nusing namespace std;\n\nint main() {\n    // Your code here\n    return 0;\n}`
+    };
+    return starters[lang] || starters.javascript;
+  };
 
   const handleSubmit = async () => {
     if (!code.trim()) return;
 
     setIsSubmitting(true);
+    setResult(null);
     try {
       const response = await questionService.submitSolution(id, {
         code,
@@ -78,25 +97,36 @@ export default function QuestionDetail() {
       setResult(response);
     } catch (error) {
       console.error('Submission error:', error);
+      setResult({
+        isCorrect: false,
+        message: 'Submission failed. Please try again.',
+        attempts: 0
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDebug = async () => {
-    if (!code.trim()) return;
+    if (!code.trim()) {
+      alert('Please write some code first');
+      return;
+    }
 
     try {
       const response = await questionService.getDebugHelp(id, {
         code,
         language,
         errorMessage: result?.message || 'Code execution failed',
-        testCase: 'Sample test case',
+        testCase: question?.examples?.[0]?.input || 'Sample test case',
       });
 
-      openChat(`Debug Help:\n\n${response.debugHelp}`);
+      // openChat(`Debug Help:\n\n${response.debugHelp}`);
+      setDebug([response.Explain]);
+      setShowDebug(true);
     } catch (error) {
       console.error('Debug error:', error);
+      alert('Failed to get debug help. Please try again.');
     }
   };
 
@@ -114,11 +144,15 @@ export default function QuestionDetail() {
       setShowHints(true);
     } catch (error) {
       console.error('Hints error:', error);
+      alert('Failed to get hints. Please try again.');
     }
   };
 
   const handleExplainAlgorithm = async () => {
-    if (!code.trim()) return;
+    if (!code.trim()) {
+      alert('Please write some code first');
+      return;
+    }
 
     try {
       const response = await questionService.explainAlgorithm(
@@ -127,9 +161,12 @@ export default function QuestionDetail() {
         language
       );
 
-      openChat(`Algorithm Explanation:\n\n${response.explanation}`);
+      // openChat(`Algorithm Explanation:\n\n${response.explanation}`);4
+      setExplain([response.Explain]);
+      setShowExplain(true);
     } catch (error) {
       console.error('Explanation error:', error);
+      alert('Failed to get algorithm explanation. Please try again.');
     }
   };
 
@@ -149,7 +186,10 @@ export default function QuestionDetail() {
   if (isLoading) {
     return (
       <div className={`min-h-screen ${backgroundStyles} flex items-center justify-center`}>
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-purple-500"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <p className={`${textColor} text-lg`}>Loading question...</p>
+        </div>
       </div>
     );
   }
@@ -270,6 +310,38 @@ export default function QuestionDetail() {
               </div>
             </div>
           )}
+
+          {showExplan && Explain.length > 0 && (
+            <div className={`bg-gradient-to-r from-yellow-900/30 to-amber-900/30 p-6 rounded-2xl border border-yellow-500/30 backdrop-blur-sm`}>
+              <h3 className={`text-xl font-bold ${textColor} mb-4 flex items-center`}>
+                <Lightbulb className="h-6 w-6 mr-3 text-yellow-400 animate-pulse" />
+                Explain
+              </h3>
+              <div className="space-y-3">
+                {Explain.map((explain, index) => (
+                  <p key={index} className={`${textColor} text-lg`}>
+                    {explain}
+                  </p>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {showDebug && Debug.length > 0 && (
+            <div className={`bg-gradient-to-r from-yellow-900/30 to-amber-900/30 p-6 rounded-2xl border border-yellow-500/30 backdrop-blur-sm`}>
+              <h3 className={`text-xl font-bold ${textColor} mb-4 flex items-center`}>
+                <Lightbulb className="h-6 w-6 mr-3 text-yellow-400 animate-pulse" />
+                Debug
+              </h3>
+              <div className="space-y-3">
+                {Debug.map((debug, index) => (
+                  <p key={index} className={`${textColor} text-lg`}>
+                    {debug}
+                  </p>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Code Editor */}
@@ -279,7 +351,10 @@ export default function QuestionDetail() {
               <div className="flex items-center space-x-4">
                 <select
                   value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
+                  onChange={(e) => {
+                    setLanguage(e.target.value);
+                    setCode(getStarterCode(e.target.value));
+                  }}
                   className={`px-4 py-2 text-sm border ${theme === 'dark' ? 'border-gray-600 bg-gray-900/80' : 'border-gray-300 bg-white/60'} ${textColor} rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300`}
                 >
                   <option value="javascript">JavaScript</option>
@@ -298,14 +373,16 @@ export default function QuestionDetail() {
                 </button>
                 <button
                   onClick={handleDebug}
-                  className={`p-3 ${textMuted} hover:text-red-400 ${theme === 'dark' ? 'hover:bg-red-900/20' : 'hover:bg-red-500/10'} rounded-xl transition-all duration-300`}
+                  disabled={!result && !code.trim()}
+                  className={`p-3 ${textMuted} hover:text-red-400 ${theme === 'dark' ? 'hover:bg-red-900/20' : 'hover:bg-red-500/10'} rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
                   title="Debug Help"
                 >
                   <Bug className="h-5 w-5" />
                 </button>
                 <button
                   onClick={handleExplainAlgorithm}
-                  className={`p-3 ${textMuted} hover:text-blue-400 ${theme === 'dark' ? 'hover:bg-blue-900/20' : 'hover:bg-blue-500/10'} rounded-xl transition-all duration-300`}
+                  disabled={!code.trim()}
+                  className={`p-3 ${textMuted} hover:text-blue-400 ${theme === 'dark' ? 'hover:bg-blue-900/20' : 'hover:bg-blue-500/10'} rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
                   title="Explain Algorithm"
                 >
                   <Brain className="h-5 w-5" />
@@ -337,7 +414,7 @@ export default function QuestionDetail() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <button
-                onClick={() => setCode('')}
+                onClick={() => setCode(getStarterCode(language))}
                 className={`flex items-center px-6 py-3 ${textMuted} hover:${textColor} ${theme === 'dark' ? 'hover:bg-gray-700/50' : 'hover:bg-gray-100'} rounded-xl transition-all duration-300 border ${theme === 'dark' ? 'border-gray-600' : 'border-gray-300'}`}
               >
                 <RotateCcw className="h-5 w-5 mr-2" />
