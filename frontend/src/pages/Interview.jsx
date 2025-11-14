@@ -311,8 +311,8 @@ const processAudioResponse = async (audioBlob) => {
         },
         body: JSON.stringify({
           problemDescription: currentQuestion?.question,
+          userApproach: userAnswer,
           difficulty: currentQuestion?.difficulty || 'medium',
-          userApproach: userAnswer
         })
       });
 

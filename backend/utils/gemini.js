@@ -19,6 +19,7 @@ class GeminiService {
 
   async generateContent(prompt, options = {}) {
     try {
+      console.log('Sending request to Gemini API...');
       const response = await axios.post(
         `${this.baseURL}?key=${this.apiKey}`,
         {
@@ -31,7 +32,7 @@ class GeminiService {
             temperature: options.temperature || 0.7,
             topK: options.topK || 40,
             topP: options.topP || 0.95,
-            maxOutputTokens: options.maxOutputTokens || 1024,
+            maxOutputTokens: options.maxOutputTokens || 4000 ,
           },
           safetySettings: [
             {
@@ -56,18 +57,75 @@ class GeminiService {
           headers: {
             'Content-Type': 'application/json',
           },
-          timeout: 30000
+          timeout: 45000
         }
       );
 
-      if (response.data && response.data.candidates && response.data.candidates[0]) {
-        return response.data.candidates[0].content.parts[0].text;
-      }
+       console.log('Gemini API Response:', JSON.stringify(response.data, null, 2));
+
+       // FIXED: Handle the actual response structure from Gemini 2.5 Flash
+      const candidate = response.data.candidates?.[0];
       
-      throw new Error('Invalid response from Gemini API');
+      if (!candidate) {
+        console.error('No candidates in response');
+        throw new Error('No response generated');
+      }
+
+      // Check for finish reasons that indicate no content
+      if (candidate.finishReason === 'MAX_TOKENS') {
+        console.warn('Response truncated due to token limit');
+        // Return a meaningful message instead of throwing error
+        return 'The response was too long and got truncated. Please try with a shorter prompt or ask for more specific information.';
+      }
+
+      if (candidate.finishReason === 'SAFETY') {
+        console.warn('Response blocked for safety reasons');
+        return 'The response was blocked for safety reasons. Please rephrase your request.';
+      }
+
+      if (candidate.finishReason === 'OTHER' || candidate.finishReason === 'STOP') {
+        console.warn('Response finished with reason:', candidate.finishReason);
+      }
+
+      // Extract text content - handle different possible structures
+      let text = '';
+      
+      if (candidate.content?.parts?.[0]?.text) {
+        text = candidate.content.parts[0].text;
+      } else if (candidate.content?.text) {
+        text = candidate.content.text;
+      } else if (candidate.text) {
+        text = candidate.text;
+      } else {
+        console.warn('No text content found in response, using fallback');
+        text = 'I received your request but could not generate a proper response. This might be due to content filters or technical limitations. Please try rephrasing your question.';
+      }
+
+      console.log('Extracted text length:', text.length);
+      return text;
+
     } catch (error) {
-      console.error('Gemini API Error:', error.response?.data || error.message);
-      throw new Error('Failed to generate content with Gemini API');
+      console.error('Gemini API Error Details:', {
+         message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        code: error.code
+      });
+
+      // Provide fallback responses based on error type
+      if (error.code === 'ECONNABORTED') {
+        throw new Error('Request timeout. Please try again.');
+      } else if (error.response?.status === 429) {
+        throw new Error('Rate limit exceeded. Please wait a moment and try again.');
+      } else if (error.response?.status === 401) {
+        throw new Error('Invalid API key. Please check your Gemini API configuration.');
+      } else if (error.response?.status === 404) {
+        throw new Error('API endpoint not found. Please check the API URL.');
+      } else if (error.response?.status >= 500) {
+        throw new Error('AI service temporarily unavailable. Please try again later.');
+      } else {
+        throw new Error(`Failed to generate content: ${error.response?.data?.error?.message || error.message}`);
+      }
     }
   }
 
@@ -97,7 +155,9 @@ class GeminiService {
     const response = await axios.post(
       `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`,
       payload,
-      { headers: { 'Content-Type': 'application/json' } }
+      { headers: { 'Content-Type': 'application/json' },
+      timeout: 30000
+     }
     );
 
     const text =
@@ -123,16 +183,15 @@ ${code}
 Error Message: ${errorMessage}
 Failed Test Case: ${testCase}
 
-Please provide:
-1. A clear explanation of what's wrong
-2. The specific line(s) causing the issue
-3. A corrected version of the problematic part
-4. Tips to avoid similar issues in the future
+Please provide a comprehensive debugging analysis including:
+1. Root cause analysis of the error
+2. Specific line numbers or code sections causing issues
+3. explanation of what's going wrong
 
-Be encouraging and educational in your response.
+Give a short and concise response.
     `;
 
-    return await this.generateContent(prompt, { temperature: 0.3 });
+    return await this.generateContent(prompt, { temperature: 0.6, maxOutputTokens: 4000 });
   }
 
   async explainAlgorithm(algorithm, code) {
@@ -145,15 +204,13 @@ Code:
 ${code}
 \`\`\`
 
-Please provide:
-1. What the algorithm does in plain English
-2. How it works step by step
-3. Time and space complexity
-4. When to use this algorithm
-5. Common variations or optimizations
+Please explain in detail:
+1. Please explain what the algorithm does, its uses, how it works step-by-step, its time/space complexity, its strengths and weaknesses, and alternative methods with trade-offs.
+
+give the short and concise response.
     `;
 
-    return await this.generateContent(prompt, { temperature: 0.5 });
+    return await this.generateContent(prompt, { temperature: 0.6, maxOutputTokens: 4000 });
   }
 
   async generateInterviewQuestion(topic, difficulty, type = 'coding') {
@@ -187,13 +244,17 @@ Question Type: ${questionType}
 User Answer: ${userAnswer}
 
 Please provide:
-1. Score out of 10
-2. Strengths in the response
-3. Areas for improvement
-4. Specific feedback
-5. Suggestions for better answers
+1. Overall score (0-10) with justification
+2. Strengths demonstrated in the response
+3. Specific areas for improvement
+4. Technical accuracy assessment
+5. Communication effectiveness
+6. Problem-solving approach evaluation
+7. Comparison to expected answer
+8. Concrete suggestions for improvement
+9. Follow-up questions the interviewer might ask
 
-Be constructive and helpful in your analysis.
+Be constructive, fair, and provide actionable feedback.
     `;
 
     return await this.generateContent(prompt, { temperature: 0.4 });
@@ -206,12 +267,14 @@ Create a personalized learning plan for a ${currentLevel} level programmer.
 Weak Topics: ${weakTopics.join(', ')}
 Strong Topics: ${strongTopics.join(', ')}
 
-Please provide:
-1. A 4-week learning roadmap
-2. Specific resources for each weak topic
-3. Practice problems to work on
-4. Milestones to track progress
-5. Tips for staying motivated
+Design a comprehensive learning roadmap that:
+1. Systematically addresses weak areas while reinforcing strengths
+2. Includes specific learning resources and practice materials
+3. Provides milestone-based progress tracking
+4. Incorporates practical projects and coding exercises
+5. Includes interview preparation strategies
+6. Offers time management and study techniques
+7. Suggests community engagement and peer learning opportunities
 
 Make it practical and achievable.
     `;
@@ -227,10 +290,16 @@ Problem: ${problemDescription}
 Solution: ${solution}
 
 Please provide:
-1. Edge cases with inputs
-2. Expected outputs for each edge case
-3. Why each case is important to test
-4. Common mistakes these cases catch
+1. Boundary value test cases
+2. Stress/performance test cases  
+3. Invalid input test cases
+4. Edge cases that test specific constraints
+5. Random but relevant test cases
+6. For each test case, provide:
+   - Input values
+   - Expected output
+   - Why this case is important
+   - Common mistakes this case catches
 
 Focus on boundary conditions, empty inputs, and unusual data.
     `;
@@ -245,12 +314,38 @@ You are a helpful coding assistant for a programming practice platform.
 Context: ${context}
 User Message: ${message}
 
-Provide a helpful, accurate, and encouraging response. If the user is asking about coding problems, provide hints rather than complete solutions. If they're asking about concepts, explain clearly with examples.
+Provide a helpful, accurate, and encouraging response. Follow these guidelines:
+- If it's a coding problem, provide hints and guidance rather than complete solutions
+- If it's a concept question, explain clearly with examples
+- If you're unsure, admit it and suggest resources
+- Keep responses informative but concise
+- Be encouraging and supportive
+- Focus on educational value
 
-Keep responses concise but informative.
+Always prioritize helping the user learn and understand rather than just giving answers.
     `;
 
     return await this.generateContent(prompt, { temperature: 0.7 });
+  }
+
+  async getHints(description, code, difficulty) {
+   const prompt = `
+   Provide helpful hints for this ${difficulty} level coding problem:
+   
+   Problem: ${description}
+   User's Current Approach: ${code || 'No approach provided yet'}
+   
+   Please provide progressive hints that guide without giving away the solution:
+   1. Start with general problem-solving approaches
+   2. Suggest key concepts and data structures to consider
+   
+   Structure your response in points, dont make it to long give a to the points answers.
+       `;
+
+    return await this.generateContent(prompt, { 
+      temperature: 0.6,
+      maxOutputTokens: 4000 
+    });
   }
 }
 

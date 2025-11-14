@@ -23,7 +23,10 @@ router.post('/chat', auth, [
     res.json({ response });
   } catch (error) {
     console.error('Chat error:', error);
-    res.status(500).json({ message: 'Server error while processing chat message' });
+    res.status(500).json({ 
+      message: 'Server error while processing chat message',
+      error: error.message 
+    });
   }
 });
 
@@ -46,11 +49,14 @@ router.post('/generate-question', auth, [
     res.json({ question });
   } catch (error) {
     console.error('Generate question error:', error);
-    res.status(500).json({ message: 'Server error while generating question' });
+    res.status(500).json({ 
+      message: 'Server error while generating question',
+      error: error.message 
+    });
   }
 });
 
-// Analyze code complexity
+// Analyze code complexity using Gemini
 router.post('/analyze-complexity', auth, [
   body('code').notEmpty().withMessage('Code is required'),
   body('language').notEmpty().withMessage('Language is required')
@@ -70,14 +76,16 @@ Analyze the time and space complexity of this ${language} code:
 ${code}
 \`\`\`
 
-Please provide:
-1. Time Complexity (Big O notation)
-2. Space Complexity (Big O notation)
-3. Explanation of why these complexities are achieved
-4. Suggestions for optimization if possible
-5. Best case, average case, and worst case scenarios
+Please provide a comprehensive analysis including:
+1. Time Complexity (Big O notation) with detailed reasoning
+2. Space Complexity (Big O notation) with detailed reasoning  
+3. Step-by-step breakdown of how you arrived at these complexities
+4. Best case, average case, and worst case scenarios
+5. Specific bottlenecks or expensive operations
+6. Suggestions for optimization with complexity trade-offs
+7. Real-world implications of these complexities
 
-Be specific and educational in your analysis.
+Be educational and specific in your analysis.
     `;
     
     const analysis = await geminiService.generateContent(prompt, { temperature: 0.3 });
@@ -85,11 +93,14 @@ Be specific and educational in your analysis.
     res.json({ analysis });
   } catch (error) {
     console.error('Analyze complexity error:', error);
-    res.status(500).json({ message: 'Server error while analyzing complexity' });
+    res.status(500).json({ 
+      message: 'Server error while analyzing complexity',
+      error: error.message 
+    });
   }
 });
 
-// Generate test cases
+// Generate test cases using Gemini
 router.post('/generate-test-cases', auth, [
   body('problemDescription').notEmpty().withMessage('Problem description is required'),
   body('solution').optional().isString().withMessage('Solution must be a string')
@@ -107,11 +118,14 @@ router.post('/generate-test-cases', auth, [
     res.json({ testCases });
   } catch (error) {
     console.error('Generate test cases error:', error);
-    res.status(500).json({ message: 'Server error while generating test cases' });
+    res.status(500).json({ 
+      message: 'Server error while generating test cases',
+      error: error.message 
+    });
   }
 });
 
-// Get coding hints
+// Get coding hints using Gemini
 router.post('/hints', auth, [
   body('problemDescription').notEmpty().withMessage('Problem description is required'),
   body('userApproach').optional().isString().withMessage('User approach must be a string'),
@@ -126,30 +140,33 @@ router.post('/hints', auth, [
     const { problemDescription, userApproach = '', difficulty } = req.body;
     
     const prompt = `
-Provide helpful hints for this ${difficulty} level coding problem:
+Provide helpful, progressive hints for this ${difficulty} level coding problem:
 
 Problem: ${problemDescription}
 User's Current Approach: ${userApproach || 'No approach provided yet'}
 
-Please provide:
-1. A gentle hint that guides without giving away the solution
-2. Key concepts to consider
-3. Common pitfalls to avoid
-4. Next steps to think about
+Please structure your hints as follows:
+1. First, provide general problem-solving strategies
+2. Then, suggest relevant data structures and algorithms
+3. Next, point out common pitfalls and how to avoid them
+4. Finally, provide more specific guidance if the user is still stuck
 
-Make the hints progressive - start with general guidance and get more specific if the user is stuck.
+Make the hints educational and encouraging. Don't give away the complete solution, but provide enough guidance to help the user reach the solution themselves.
     `;
     
-    const hints = await geminiService.generateContent(prompt, { temperature: 0.6 });
+    const hints = await geminiService.generateContent(prompt, { temperature: 0.6, maxOutputTokens: 3072 });
     
     res.json({ hints });
   } catch (error) {
     console.error('Get hints error:', error);
-    res.status(500).json({ message: 'Server error while generating hints' });
+    res.status(500).json({ 
+      message: 'Server error while generating hints',
+      error: error.message 
+    });
   }
 });
 
-// Code review and suggestions
+// Code review and suggestions using Gemini
 router.post('/code-review', auth, [
   body('code').notEmpty().withMessage('Code is required'),
   body('language').notEmpty().withMessage('Language is required'),
@@ -164,7 +181,7 @@ router.post('/code-review', auth, [
     const { code, language, problemContext = '' } = req.body;
     
     const prompt = `
-Review this ${language} code and provide constructive feedback:
+Perform a comprehensive code review for this ${language} code:
 
 Problem Context: ${problemContext}
 Code:
@@ -172,16 +189,19 @@ Code:
 ${code}
 \`\`\`
 
-Please provide:
-1. Code quality assessment (1-10)
-2. Strengths of the code
-3. Areas for improvement
-4. Specific suggestions for better practices
-5. Performance considerations
-6. Readability improvements
-7. Best practices that could be applied
+Please provide a detailed review covering:
+1. Code Quality Assessment (1-10 scale with justification)
+2. Correctness and Logic
+3. Efficiency (Time & Space Complexity)
+4. Readability and Maintainability
+5. Best Practices Adherence
+6. Error Handling
+7. Edge Case Coverage
+8. Specific Improvement Suggestions
+9. Security Considerations (if applicable)
+10. Overall Strengths and Weaknesses
 
-Be constructive and educational in your feedback.
+Be constructive, specific, and educational in your feedback.
     `;
     
     const review = await geminiService.generateContent(prompt, { temperature: 0.4 });
@@ -189,11 +209,14 @@ Be constructive and educational in your feedback.
     res.json({ review });
   } catch (error) {
     console.error('Code review error:', error);
-    res.status(500).json({ message: 'Server error while reviewing code' });
+    res.status(500).json({ 
+      message: 'Server error while reviewing code',
+      error: error.message 
+    });
   }
 });
 
-// Generate algorithm explanation
+// Generate algorithm explanation using Gemini
 router.post('/explain-algorithm', auth, [
   body('algorithmName').notEmpty().withMessage('Algorithm name is required'),
   body('code').notEmpty().withMessage('Code is required'),
@@ -212,17 +235,21 @@ router.post('/explain-algorithm', auth, [
     res.json({ explanation });
   } catch (error) {
     console.error('Explain algorithm error:', error);
-    res.status(500).json({ message: 'Server error while explaining algorithm' });
+    res.status(500).json({ 
+      message: 'Server error while explaining algorithm',
+      error: error.message 
+    });
   }
 });
 
-// Generate personalized study plan
+// Generate personalized study plan using Gemini
 router.post('/study-plan', auth, [
   body('currentLevel').isIn(['beginner', 'intermediate', 'advanced']).withMessage('Invalid current level'),
   body('targetLevel').isIn(['beginner', 'intermediate', 'advanced']).withMessage('Invalid target level'),
   body('timeAvailable').isInt({ min: 1, max: 168 }).withMessage('Time available must be between 1 and 168 hours per week'),
   body('weakAreas').isArray().withMessage('Weak areas must be an array'),
-  body('strongAreas').isArray().withMessage('Strong areas must be an array')
+  body('strongAreas').isArray().withMessage('Strong areas must be an array'),
+  body('goals').optional().isString().withMessage('Goals must be a string')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -233,25 +260,28 @@ router.post('/study-plan', auth, [
     const { currentLevel, targetLevel, timeAvailable, weakAreas, strongAreas, goals } = req.body;
     
     const prompt = `
-Create a personalized study plan for a programmer:
+Create a comprehensive personalized study plan for a programmer:
 
 Current Level: ${currentLevel}
 Target Level: ${targetLevel}
 Time Available: ${timeAvailable} hours per week
 Weak Areas: ${weakAreas.join(', ')}
 Strong Areas: ${strongAreas.join(', ')}
-Goals: ${goals || 'General improvement'}
+Goals: ${goals || 'General improvement and interview preparation'}
 
-Please provide:
-1. A 4-week detailed study plan
-2. Daily and weekly goals
-3. Specific resources for each topic
-4. Practice problems to work on
-5. Milestones to track progress
-6. Tips for staying motivated
-7. Time allocation for each area
+Please provide a detailed 4-week study plan including:
+1. Weekly learning objectives and milestones
+2. Daily study schedule breakdown
+3. Specific topics to cover each week
+4. Recommended resources (books, courses, practice platforms)
+5. Hands-on coding projects and exercises
+6. Practice problems with increasing difficulty
+7. Review and assessment strategies
+8. Time management tips
+9. Motivation and progress tracking methods
+10. Interview preparation strategies
 
-Make it practical, achievable, and tailored to their current level and available time.
+Make the plan realistic, actionable, and tailored to their specific needs and time constraints.
     `;
     
     const studyPlan = await geminiService.generateContent(prompt, { temperature: 0.7 });
@@ -259,11 +289,14 @@ Make it practical, achievable, and tailored to their current level and available
     res.json({ studyPlan });
   } catch (error) {
     console.error('Generate study plan error:', error);
-    res.status(500).json({ message: 'Server error while generating study plan' });
+    res.status(500).json({ 
+      message: 'Server error while generating study plan',
+      error: error.message 
+    });
   }
 });
 
-// Voice interview simulation
+// Voice interview simulation using Gemini
 router.post('/voice-interview', auth, [
   body('question').notEmpty().withMessage('Question is required'),
   body('userResponse').notEmpty().withMessage('User response is required'),
@@ -282,7 +315,10 @@ router.post('/voice-interview', auth, [
     res.json({ analysis });
   } catch (error) {
     console.error('Voice interview error:', error);
-    res.status(500).json({ message: 'Server error while processing voice interview' });
+    res.status(500).json({ 
+      message: 'Server error while processing voice interview',
+      error: error.message 
+    });
   }
 });
 
