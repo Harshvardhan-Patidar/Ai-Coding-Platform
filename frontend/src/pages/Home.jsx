@@ -62,27 +62,6 @@ export default function Home() {
       delay: 100
     },
     {
-      icon: Trophy,
-      title: 'Contest Mode',
-      description: 'Compete with friends in real-time coding contests and tournaments.',
-      color: 'from-amber-500 to-orange-500',
-      delay: 200
-    },
-    {
-      icon: Brain,
-      title: 'Smart Learning Path',
-      description: 'AI creates personalized study plans based on your strengths and weaknesses.',
-      color: 'from-emerald-500 to-green-500',
-      delay: 300
-    },
-    {
-      icon: Users,
-      title: 'Community & Leaderboards',
-      description: 'Track your progress and compete with developers worldwide.',
-      color: 'from-indigo-500 to-purple-500',
-      delay: 400
-    },
-    {
       icon: Zap,
       title: 'Real-time Feedback',
       description: 'Get instant feedback on your code with detailed explanations.',
@@ -100,23 +79,17 @@ export default function Home() {
 
   const testimonials = [
     {
-      name: 'Sarah Chen',
-      role: 'Software Engineer at Google',
-      content: 'This platform helped me land my dream job. The AI feedback is incredibly accurate!',
+      name: 'Harsh Patidar',
+      role: 'Software Engineer',
+      content: 'This platform helped land dream jobs. The AI feedback is incredibly accurate!',
       avatar: '👩‍💻'
     },
     {
-      name: 'Alex Rodriguez',
+      name: 'Somya Shukla',
       role: 'Full Stack Developer',
-      content: 'The voice-based interviews prepared me better than any other platform. Highly recommended!',
+      content: 'The voice-based interviews prepared better than any other platform. Highly recommended!',
       avatar: '👨‍💻'
     },
-    {
-      name: 'Priya Patel',
-      role: 'Computer Science Student',
-      content: 'The personalized learning path helped me improve my weak areas dramatically.',
-      avatar: '🧑‍🎓'
-    }
   ];
 
   return (
@@ -223,24 +196,24 @@ export default function Home() {
 
           {/* Trust badges */}
           <div className={`mt-12 flex flex-wrap justify-center items-center gap-8 ${textMuted} ${mounted ? 'animate-fade-in delay-700' : 'opacity-0'}`}>
-            <div className="flex items-center space-x-2">
+            {/* <div className="flex items-center space-x-2">
               <Shield className="h-5 w-5 text-emerald-400" />
               <span>Trusted by 10K+ Developers</span>
-            </div>
+            </div> */}
             <div className="flex items-center space-x-2">
               <Clock className="h-5 w-5 text-blue-400" />
               <span>24/7 AI Assistance</span>
             </div>
-            <div className="flex items-center space-x-2">
+            {/* <div className="flex items-center space-x-2">
               <Target className="h-5 w-5 text-amber-400" />
               <span>95% Success Rate</span>
-            </div>
+            </div> */}
           </div>
         </div>
       </section>
 
       {/* Enhanced Stats Section */}
-      <section className={`relative py-16 ${theme === 'dark' ? 'bg-slate-800/20' : 'bg-white/20'} backdrop-blur-sm transition-colors duration-300`}>
+      {/* <section className={`relative py-16 ${theme === 'dark' ? 'bg-slate-800/20' : 'bg-white/20'} backdrop-blur-sm transition-colors duration-300`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
@@ -258,7 +231,7 @@ export default function Home() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Enhanced Features Section */}
       <section className="relative py-20 px-4 sm:px-6 lg:px-8">
@@ -300,13 +273,13 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className={`text-4xl md:text-5xl font-bold ${textColor} mb-4`}>
-              What Our <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">Users Say</span>
+              What Our <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">Founder Say</span>
             </h2>
             <p className={`text-xl ${textMuted} max-w-2xl mx-auto`}>
               Join thousands of developers who transformed their careers with CodeMaster
             </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 gap-8">
             {testimonials.map((testimonial, index) => (
               <div 
                 key={index}
@@ -331,7 +304,7 @@ export default function Home() {
       </section>
 
       {/* Enhanced CTA Section */}
-      <section className={`relative py-20 bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-orange-600/20 backdrop-blur-sm transition-colors duration-300`}>
+      {/* <section className={`relative py-20 bg-gradient-to-r from-purple-600/20 via-pink-600/20 to-orange-600/20 backdrop-blur-sm transition-colors duration-300`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="relative">
             <Crown className="h-16 w-16 text-amber-400 mx-auto mb-6 animate-pulse" />
@@ -347,16 +320,16 @@ export default function Home() {
             >
               Get Started Free
               <Rocket className="ml-2 h-5 w-5 group-hover:animate-pulse" />
-            </Link>
+            </Link> */}
             
             {/* Guarantee badge */}
-            <div className="mt-8 flex items-center justify-center space-x-2 text-slate-600">
+            {/* <div className="mt-8 flex items-center justify-center space-x-2 text-slate-600">
               <CheckCircle className="h-5 w-5 text-emerald-400" />
               <span>No credit card required • 7-day free trial</span>
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Enhanced Footer */}
       <footer className={`relative ${theme === 'dark' ? 'bg-slate-800/40' : 'bg-white/40'} backdrop-blur-sm border-t ${theme === 'dark' ? 'border-slate-700/50' : 'border-slate-200/50'} py-12 transition-colors duration-300`}>
@@ -366,7 +339,7 @@ export default function Home() {
               <Code className="h-6 w-6 text-purple-400" />
               <span className="font-semibold text-purple-500">CodeMaster AI</span>
             </div>
-            <p>&copy; 2024 CodeMaster AI. All rights reserved. Built with ❤️ for developers</p>
+            <p>&copy; 2025 CodeMaster AI. Built by SS ❤️ HP for developers</p>
           </div>
         </div>
       </footer>

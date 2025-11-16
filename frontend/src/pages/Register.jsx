@@ -172,7 +172,7 @@ export default function Register() {
                     className={`pl-10 w-full px-4 py-3 bg-slate-900/60 border rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 ${
                       errors.firstName ? 'border-red-500/50' : 'border-slate-700'
                     }`}
-                    placeholder="John"
+                    placeholder="Somya"
                   />
                 </div>
                 {errors.firstName && (
@@ -195,7 +195,7 @@ export default function Register() {
                     className={`pl-10 w-full px-4 py-3 bg-slate-900/60 border rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 ${
                       errors.lastName ? 'border-red-500/50' : 'border-slate-700'
                     }`}
-                    placeholder="Doe"
+                    placeholder="Shukla"
                   />
                 </div>
                 {errors.lastName && (
@@ -222,7 +222,7 @@ export default function Register() {
                   className={`pl-10 w-full px-4 py-3 bg-slate-900/60 border rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 ${
                     errors.username ? 'border-red-500/50' : 'border-slate-700'
                   }`}
-                  placeholder="johndoe"
+                  placeholder="hp"
                 />
               </div>
               {errors.username && (
@@ -248,7 +248,7 @@ export default function Register() {
                   className={`pl-10 w-full px-4 py-3 bg-slate-900/60 border rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-300 ${
                     errors.email ? 'border-red-500/50' : 'border-slate-700'
                   }`}
-                  placeholder="john@example.com"
+                  placeholder="somya@example.com"
                 />
               </div>
               {errors.email && (

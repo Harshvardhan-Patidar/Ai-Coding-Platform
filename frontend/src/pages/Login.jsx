@@ -242,7 +242,7 @@ export default function Login() {
           </div>
 
           {/* Quick Demo Credentials */}
-          <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl p-4 border border-slate-700/50">
+          {/* <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl p-4 border border-slate-700/50">
             <div className="flex items-center space-x-2 text-slate-400 text-sm mb-2">
               <Key className="h-4 w-4 text-amber-400" />
               <span className="font-semibold">Demo Credentials:</span>
@@ -257,11 +257,11 @@ export default function Login() {
                 <span>Password: demo123</span>
               </div>
             </div>
-          </div>
+          </div> */}
         </form>
 
         {/* Stats Footer */}
-        <div className="text-center">
+        {/* <div className="text-center">
           <div className="grid grid-cols-3 gap-4 text-slate-500 text-sm">
             <div className="space-y-1">
               <div className="text-white font-bold">10K+</div>
@@ -276,7 +276,7 @@ export default function Login() {
               <div>AI Support</div>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Floating animation keyframes */}
