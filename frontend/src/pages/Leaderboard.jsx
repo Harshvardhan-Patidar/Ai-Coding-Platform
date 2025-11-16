@@ -36,54 +36,24 @@ export default function Leaderboard() {
   const mockLeaderboard = [
     {
       rank: 1,
-      username: 'alex_coder',
-      name: 'Alex Johnson',
-      score: 2450,
-      problemsSolved: 156,
-      streak: 23,
-      avatar: 'AJ',
+      username: 'Somya Shukla',
+      name: 'Somya Shukla',
+      score: 0,
+      problemsSolved: 0,
+      streak: 0,
+      avatar: 'SS',
       badge: 'gold'
     },
     {
       rank: 2,
-      username: 'sarah_dev',
-      name: 'Sarah Chen',
-      score: 2380,
-      problemsSolved: 142,
-      streak: 18,
-      avatar: 'SC',
+      username: 'Harsh Patidar',
+      name: 'Harsh Patidar',
+      score: 0,
+      problemsSolved: 0,
+      streak: 0,
+      avatar: 'HP',
       badge: 'silver'
     },
-    {
-      rank: 3,
-      username: 'mike_algo',
-      name: 'Mike Rodriguez',
-      score: 2290,
-      problemsSolved: 138,
-      streak: 15,
-      avatar: 'MR',
-      badge: 'bronze'
-    },
-    {
-      rank: 4,
-      username: 'emma_tech',
-      name: 'Emma Wilson',
-      score: 2150,
-      problemsSolved: 125,
-      streak: 12,
-      avatar: 'EW',
-      badge: null
-    },
-    {
-      rank: 5,
-      username: 'david_code',
-      name: 'David Kim',
-      score: 2080,
-      problemsSolved: 118,
-      streak: 10,
-      avatar: 'DK',
-      badge: null
-    }
   ];
 
   const getBadgeIcon = (badge) => {
@@ -248,7 +218,7 @@ export default function Leaderboard() {
           
           <div className="flex items-center space-x-6">
             <div className="text-4xl font-bold bg-gradient-to-r from-green-600 to-cyan-600 bg-clip-text text-transparent">
-              #42
+              #0
             </div>
             <div className="flex-1">
               <div className="flex items-center space-x-3">
@@ -256,11 +226,11 @@ export default function Leaderboard() {
                 <TrendingUp className="h-5 w-5 text-green-500 animate-bounce" />
               </div>
               <p className={`${textMuted} mt-2`}>
-                You've moved up <span className="text-green-600 font-semibold">3 positions</span> this week!
+                You've moved up <span className="text-green-600 font-semibold">0 positions</span> this week!
               </p>
             </div>
             <div className="text-right">
-              <div className={`text-2xl font-bold ${textColor}`}>1,850</div>
+              <div className={`text-2xl font-bold ${textColor}`}>0</div>
               <div className={`text-sm ${textMuted}`}>points</div>
             </div>
           </div>
@@ -270,19 +240,19 @@ export default function Leaderboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className={`${cardBackground} p-6 rounded-2xl text-center border hover:scale-105 transition-transform duration-300`}>
             <Trophy className="h-10 w-10 text-yellow-500 mx-auto mb-4 animate-pulse" />
-            <div className={`text-3xl font-bold ${textColor}`}>3</div>
+            <div className={`text-3xl font-bold ${textColor}`}>0</div>
             <div className={`${textMuted}`}>Achievements</div>
           </div>
           
           <div className={`${cardBackground} p-6 rounded-2xl text-center border hover:scale-105 transition-transform duration-300`}>
             <Award className="h-10 w-10 text-blue-500 mx-auto mb-4 animate-pulse" />
-            <div className={`text-3xl font-bold ${textColor}`}>15</div>
+            <div className={`text-3xl font-bold ${textColor}`}>0</div>
             <div className={`${textMuted}`}>Contests Won</div>
           </div>
           
           <div className={`${cardBackground} p-6 rounded-2xl text-center border hover:scale-105 transition-transform duration-300`}>
             <TrendingUp className="h-10 w-10 text-green-500 mx-auto mb-4 animate-pulse" />
-            <div className={`text-3xl font-bold ${textColor}`}>+12%</div>
+            <div className={`text-3xl font-bold ${textColor}`}>+0%</div>
             <div className={`${textMuted}`}>This Month</div>
           </div>
         </div>

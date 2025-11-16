@@ -43,14 +43,14 @@ export default function Dashboard() {
     // Simulate loading user stats
     setTimeout(() => {
       setStats({
-        totalSolved: 47,
-        easySolved: 25,
-        mediumSolved: 18,
-        hardSolved: 4,
-        currentStreak: 12,
-        longestStreak: 15,
-        totalTimeSpent: 2850,
-        rank: 156
+        totalSolved: 0,
+        easySolved: 0,
+        mediumSolved: 0,
+        hardSolved: 0,
+        currentStreak: 0,
+        longestStreak: 0,
+        totalTimeSpent: 0,
+        rank: 0
       });
       setRecentActivity([
         {
