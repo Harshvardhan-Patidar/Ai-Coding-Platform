@@ -11,6 +11,7 @@ const authRoutes = require('./routes/auth');
 const questionRoutes = require('./routes/questions');
 const userRoutes = require('./routes/users');
 const interviewRoutes = require('./routes/interview');
+const leaderboardRoutes = require('./routes/leaderboard');
 const contestRoutes = require('./routes/contest');
 const aiRoutes = require('./routes/ai');
 
@@ -62,6 +63,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/questions', questionRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/interview', interviewRoutes);
+app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/contest', contestRoutes);
 app.use('/api/ai', aiRoutes);
 
