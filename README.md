@@ -1,4 +1,4 @@
-# AI-Powered Coding Practice & Interview Preparation Platform
+# CodeShourya: AI-Powered Coding Practice & Interview Preparation Platform
 
 A next-generation coding practice platform that combines AI intelligence with hands-on coding practice to help developers prepare for technical interviews and improve their coding skills.
 
@@ -39,7 +39,9 @@ A next-generation coding practice platform that combines AI intelligence with ha
 - **Gemini AI API** for AI features
 
 ### AI Integration
-- **Google Gemini 2.0 Flash** for all AI-powered features
+- **Google Gemini 2.5 Flash** for all AI-powered features
 - Voice recognition and synthesis
 - Natural language processing
 - Code analysis and feedback
+
+[CodeShourya_SRH.pdf](https://github.com/user-attachments/files/24015574/CodeShourya_SRH.pdf)
